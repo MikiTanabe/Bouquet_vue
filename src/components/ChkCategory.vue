@@ -65,10 +65,11 @@ export default {
             arrImage: [],
             arrActivity: [],
             arrOthers: [],
+            mapCategoryData: []
         }
     },
     methods: {
-        area_Changed () {
+        area_Changed: function () {
             this.arrPrefs.splice(0)
             if (this.area != '-1') {
                 db.firestore().collection('subArea').doc(this.area.toString()).get().then(doc => {
@@ -85,6 +86,14 @@ export default {
             } else {
                 this.prefecture = -1
             }
+        },
+        CallSubmit: function () {
+            this.mapCategoryData['Color'] = this.arrColor
+            this.mapCategoryData['Frame'] = this.arrFrame
+            this.mapCategoryData['Image'] = this.arrImage
+            this.mapCategoryData['Activity'] = this.arrActivity
+            this.mapCategoryData['Other'] = this.arrOthers
+            this.$emit( 'catchCategories', this.mapCategoryData)
         }
     },
     

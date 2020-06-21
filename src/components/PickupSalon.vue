@@ -14,7 +14,7 @@
     </div>
 </template>
 <script>
-import firebase from '@/firebase/firestore'
+import db from '@/firebase/firestore'
 
 export default {
     name: 'PickupSalon',
@@ -24,9 +24,8 @@ export default {
         }
     },
     created () {
-        var db = firebase.firestore()
         /* サロンデータの取得 */
-        var docRef = db.collection('salons')
+        var docRef = db.firestore().collection('salons')
         docRef.orderBy("upDate", "desc").limit(4).get().then(DocumentSnapshot => {
             DocumentSnapshot.forEach(doc => {
                 var salon = []
@@ -36,7 +35,7 @@ export default {
                 salon['name'] = doc.get('name')
                 salon['upDate'] = strDate
                 salon['features'] = this.FormatFeatures(doc.get('features'))
-                salon['prefecture'] = doc.get('prefecture')
+                salon['prefecture'] = doc.get('prefecture')['name']
                 salon['subArea'] = doc.get('subArea')
                 this.arrSalons.push(salon)
             })
@@ -46,15 +45,17 @@ export default {
         FormatDate: function (date) {
             var rtnDate = ''
             var tYear = date.getFullYear()
-            var tMonth = date.getMonth()
+            var tMonth = date.getMonth() + 1
             var tDate = date.getDate()
             rtnDate = 'upDate ' + tYear + '-' + tMonth + '-' + tDate
             return rtnDate
         },
         FormatFeatures: function (features) {
             var rtnFeatures = ''
-            features.forEach ( function( value ){
-                rtnFeatures += value + '／'
+            Object.keys( features ).forEach ( key => {
+                features[key].forEach ( feature => {
+                    rtnFeatures += feature + '／'
+                })
             })
             rtnFeatures = rtnFeatures.slice(0, -1)
             return rtnFeatures

@@ -7,7 +7,7 @@ export default {
     name: 'SeachBox',
     methods: {
         Search_Click: function () {
-            console.log('success!!');
+            this.$emit('clickedSearchBox')
             }
     }
 }

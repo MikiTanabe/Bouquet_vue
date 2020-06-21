@@ -5,6 +5,7 @@
 // Your web app's Firebase configuration
 // Initialize Firebase */
 import firebase from 'firebase'
+require('firebase/auth');
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAzTLzkO1Y_PeGhljMnXtzA8dp1asiB71w',
@@ -18,5 +19,6 @@ const firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig)
 firebase.analytics()
+firebase.firestore()
 
 export default firebase

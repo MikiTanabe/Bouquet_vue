@@ -1,18 +1,62 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container">
+    <div class="row pt-2">
+      <div v-if="blnAuth">
+        <p>こんにちは、{{ name }}さん</p>
+        <div id="flexWrapperContainer">
+          <LeftBar />
+          <MyPageTop />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
+ 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import firebase from '@/firebase/firestore'
+import MyPageTop from '@/components/MyPageTop'
+import LeftBar from '@/components/LeftBar'
+ 
 export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  }
+    data() {
+        return {
+            name: '',
+            blnAuth: false
+        }
+    },
+    mounted() {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          this.name = firebase.auth().currentUser.displayName
+          this.blnAuth = true
+        } else {
+          this.name = ''
+          this.blnAuth = false
+          this.$router.push('/signin')
+        }
+      })
+    },
+    components: {
+      MyPageTop,
+      LeftBar
+    }
 }
 </script>
+<style scoped>
+  h2 {
+    font-size: 130%;
+  }
+
+  h3 {
+    font-size: 110%;
+  }
+
+  h4 {
+    font-size: 100%;
+  }
+
+  #flexWrapperContainer {
+    display: flex;
+    align-items: flex-start;
+  }
+</style>

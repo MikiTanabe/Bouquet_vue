@@ -2,7 +2,7 @@
     <div class="category">
         <div class="flexPlaceContainer">
             <div class="form-group place">
-                <label for="areaSelection">地域 : {{ areaID }} : {{ prefectureID }} </label>
+                <label for="areaSelection">地域</label>
                 <select v-model="areaID" class="form-control" id="areaSelection" @change="AreaChanged">
                     <option value="-1">未選択</option>
                     <option v-for="area in arrAreas" v-bind:key="area.id" v-bind:value="area.id">{{ area.name }}</option>
@@ -27,8 +27,8 @@ export default {
         return {
             arrPrefs: [],
             arrAreas: [],
-            areaID: this.chNumArea,
-            prefectureID: this.chNumPref,
+            areaID: -1,
+            prefectureID: -1,
         }
     },
     props :{
@@ -65,7 +65,6 @@ export default {
             if (ID != '-1') {
                 db.firestore().collection('subArea').doc( ID ).get().then(doc => {
                     let i = 0
-                    console.log(doc.get('names'))
                     doc.get('names').forEach( value => {
                         var hashPref = []
                         hashPref['id'] = i

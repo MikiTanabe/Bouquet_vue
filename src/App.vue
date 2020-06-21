@@ -8,17 +8,11 @@
                 </div>
                 <div class="col-12" id="flexHeaderContainer">
                     <div class="col-3 flexHeaderChild clViolet largeTxt">
-                        Bouquet!
-                    </div>
-                    <div class="col-3 flexHeaderChild bg-success">
-                        検索
+                        <router-link to="/">Bouquet!</router-link>
                     </div>
                     <div class="col-3 flexHeaderChild flexRight clViolet">
-                        ログイン／新規登録
+                        <!-- {{ userName }} -->▶<router-link v-bind:to="strLogin">{{ myPageMsg }}</router-link> ▶<router-link to="help">ヘルプ</router-link>
                     </div>
-                    <!-- <div id="nav">
-                      <router-link to="/">Top</router-link>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -28,6 +22,34 @@
     </div>
   </div>
 </template>
+
+<script>
+import firebase from '@/firebase/firestore'
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      userName: '',
+      myPageMsg: 'ログイン／新規登録',
+      strLogin: '/signin'
+    }
+  },
+  mounted(){
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.userName = firebase.auth().currentUser.displayName + '様 : '
+        this.myPageMsg = 'マイページ'
+        this.strLogin = '/home'
+      } else {
+        this.userName = ''
+        this.myPageMsg = 'ログイン／新規登録'
+        this.strLogin = '/signin'
+      }
+    })
+  }
+}
+</script>
 
 <style lang="scss">
 /* #app {

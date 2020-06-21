@@ -24,7 +24,7 @@
                 </div>
                 <!-- チェックボックス -->
                 <h5>メニューの設定</h5>
-                <ChkCategory></ChkCategory>
+                <ChkCategory ref="chkCategory" @catchCategories="CatchCategories"></ChkCategory>
                 <h5>地域の設定</h5>
                 <PullArea :numArea="prNumArea" @catchAreaID="ChangePrNumArea" :numPref="prNumPref" @catchPrefID="ChangePrNumPref"></PullArea>
                 <div class="form-group">
@@ -44,8 +44,7 @@
                         <tr><td><label>ブログ</label></td><td><input type="text" v-bind="urlBlog"></td></tr>
                     </table>
                 </div>
-                <!-- 送信ボタン -->
-                <button v-on:click="AddOrModify" class="btn btn-primary">保存</button>
+                <button v-on:click.prevent="AddOrModify" class="btn btn-primary">保存</button>
             </form>
         </div>
     </div>
@@ -63,9 +62,9 @@ export default {
     },
     data () {
         return {
-            salonTitle: '',
+            salonTitle: 'サロン名',
             salonID: '',
-            txtSubArea: '',
+            txtSubArea: '詳細地域',
             txtIntroduction: 'サロン紹介文',
             prNumArea: -1,
             prNumPref: -1,
@@ -75,7 +74,10 @@ export default {
             urlWear: '',
             blnAuth: false,
             userID: '',
-            blnHaveSalon: false
+            blnHaveSalon: false,
+            mapAreas: {},
+            mapPrefs: {},
+            mapFeatures: {}
         }
     },
     methods: {
@@ -93,20 +95,35 @@ export default {
                         this.blnHaveSalon = true
                         this.prNumArea = doc.get('area')['id']
                         this.prNumPref = doc.get('prefecture')['id']
-                        console.log('area: ' + this.prNumArea + 'pref: ' + this.prNumPref)
                     } else {
                         this.blnHaveSalon = false
                     }
                 })
             })
         },
-        CreateSalon: function () {
-                firebase.firestore().collection("salons").add({
-                    name: this.salonTitle,
-                    subArea: this.txtSubArea,
-                    introduction: this.txtIntroduction,
-                    userID: this.userID
+        GetAreaInfo: function () {
+            /* 地域の取得 */
+            var areaRef = firebase.firestore().collection('area')
+            areaRef.get().then( querySnapShot => {
+                querySnapShot.forEach( doc => {
+                    if( doc.exists ) {
+                        this.mapAreas[ doc.id ] = doc.get('name')
+                    }
                 })
+            })
+
+            /* 県の取得 */
+            var prefRef = firebase.firestore().collection('subArea')
+            prefRef.get().then( querySnapshot => {
+                querySnapshot.forEach( doc => {
+                    if( doc.exists ) {
+                        this.mapPrefs[doc.id] = doc.get('names')
+                    }
+                })
+            })
+        },
+        CreateSalon: function ( SalonData ) {
+                firebase.firestore().collection("salons").add( SalonData )
                 .then(function(docRef) {
                     console.log("Document written with ID: ", docRef.id);
                 })
@@ -114,21 +131,41 @@ export default {
                     console.error("Error adding document: ", error);
                 })
         },
-        AddOrModify: function ( ) {
-                if ( this.blnHaveSalon ) {
-                    this.ModifySalon(this.salonID)
-                } else {
-                    this.CreateSalon()
-                }
-        },
-        ModifySalon: function ( salonID ) {
+        ModifySalon: function ( salonID, salonData ) {
             var salonRef = firebase.firestore().collection('salons').doc(salonID)
-                    salonRef.set({
-                        name: this.salonTitle,
-                        subArea: this.txtSubArea,
-                        introduction: this.txtIntroduction,
-                        userID: this.userID
-                    })
+                    salonRef.set( salonData )
+        },
+        AddOrModify: function ( ) {
+            try {
+                if ( this.prNumPref == -1 || this.prNumArea == -1) {
+                    throw new Error('地域を選択してください');
+                } else {
+                    this.$refs.chkCategory.CallSubmit()
+                    var mapSalonData = this.SetMapSalonInfo()
+                    if ( this.blnHaveSalon ) {
+                        this.ModifySalon( this.salonID, mapSalonData )
+                        alert('サロン情報を更新しました')
+                    } else {
+                        this.CreateSalon( mapSalonData )
+                        alert('サロンを新規登録しました')
+                    }
+                }
+            } catch ( e ) {
+                alert(e.message)
+            }
+        },
+        SetMapSalonInfo: function () {
+            var mapSalonData = {
+                    name: this.salonTitle,
+                    area: {id:this.prNumArea, name:this.mapAreas[String(this.prNumArea)]},
+                    prefecture: {id:this.prNumPref, name:this.mapPrefs[String(this.prNumArea)][String(this.prNumPref)]},
+                    subArea: this.txtSubArea,
+                    introduction: this.txtIntroduction,
+                    userID: this.userID,
+                    upDate: new Date(),
+                    features: this.mapFeatures
+                }
+            return mapSalonData
         },
         ChangePrNumArea: function ( areaID ) {
             this.prNumArea = Number( areaID )
@@ -136,19 +173,35 @@ export default {
         },
         ChangePrNumPref: function ( prefID ) {
             this.prNumPref = Number( prefID )
-        }
+        },
+        CatchCategories: function ( value ) {
+            Object.keys( value ).forEach( key => {
+                var arrValues = []
+                value[key].forEach( function ( array ) {
+                    Object.keys( array ).forEach( function ( chKey ) {
+                        if ( array[ chKey ] == true ) {
+                            console.log(array['text'])
+                            arrValues.push( array[ 'text'] )
+                        }
+                    })
+                })
+                this.mapFeatures[key] = arrValues
+                console.log(this.mapFeatures)
+            })
+        },
     },
-    created() {
+    mounted() {
+        this.GetAreaInfo()
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
-            this.userID = firebase.auth().currentUser.uid
-            this.blnAuth = true
-            this.getSalonInfo()
+                this.userID = firebase.auth().currentUser.uid
+                this.blnAuth = true
+                this.getSalonInfo()
             } else {
-            this.name = ''
-            this.blnAuth = false
-            this.$router.push('/signin')
-            }
+                this.name = ''
+                this.blnAuth = false
+                this.$router.push('/signin')
+            } 
         })
     }
 }
