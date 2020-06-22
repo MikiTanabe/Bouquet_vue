@@ -65,7 +65,28 @@ export default {
             arrImage: [],
             arrActivity: [],
             arrOthers: [],
-            mapCategoryData: []
+            mapCategoryData: {},
+            mapBlnFeatures: {}
+        }
+    },
+    props: {
+        prpMapBlnFeatures: {
+            type: Object,
+            default: () => ({chkDef:'default'})
+        }
+    },
+    computed: {
+        chMapBlnFeatures: function () {
+            return this.prpMapBlnFeatures
+        }
+    },
+    watch: {
+        chMapBlnFeatures: function ( newVal ) {
+            this.mapBlnFeatures = newVal
+            this.mapBlnFeatures['chkDef'] = 'got'
+            this.SetBlnCategories( this.mapBlnFeatures )
+            console.log('カテゴリー')
+            console.log(this.arrColor)
         }
     },
     methods: {
@@ -85,6 +106,64 @@ export default {
                 this.prefecture = 0
             } else {
                 this.prefecture = -1
+            }
+        },
+        SetBlnCategories: function ( mapBln ) {
+            if ( mapBln['chkDef'] == 'got' ) {
+                Object.keys( mapBln ).forEach( key => {
+                    if( key == 'chkDef' ) {
+                        return
+                    } else {
+                        mapBln[ key ].forEach( value => {
+                            var wkArray = []
+                            if ( key == 'Color') {
+                                this.arrColor.forEach( color => {
+                                    if ( color[ 'text' ] == value ) {
+                                        this.$set(color, 'done', true)
+                                    }
+                                    wkArray.push( color )
+                                })
+                                this.arrColor = wkArray
+                            } else if ( key == 'Image') {
+                                wkArray.splice(0)
+                                this.arrImage.forEach( image => {
+                                    if ( image[ 'text' ] == value ) {
+                                        this.$set( image, 'done', true )
+                                    }
+                                    wkArray.push( image )
+                                })
+                                this.arrImage = wkArray
+                            } else if ( key == 'Activity') {
+                                wkArray.splice(0)
+                                this.arrActivity.forEach( activity => {
+                                    if ( activity[ 'text' ] == value ) {
+                                        this.$set( activity, 'done', true )
+                                    }
+                                    wkArray.push( activity )
+                                })
+                                this.arrActivity = wkArray
+                            } else if ( key == 'Frame') {
+                                wkArray.splice(0)
+                                this.arrFrame.forEach( frame => {
+                                    if ( frame[ 'text' ] == value ) {
+                                        this.$set( frame, 'done', true )
+                                    }
+                                    wkArray.push( frame )
+                                })
+                                this.arrFrame = wkArray
+                            } else if ( key == 'Other') {
+                                wkArray.splice(0)
+                                this.arrOthers.forEach( other => {
+                                    if ( other[ 'text' ] == value ) {
+                                        this.$set( other, 'done', true )
+                                    }
+                                    wkArray.push( other )
+                                })
+                                this.arrOthers = wkArray
+                            }
+                        })
+                    }
+                })
             }
         },
         CallSubmit: function () {

@@ -12,7 +12,7 @@
                 <p>サロン画像</p>
                 <div class="images">
                     <p>チェックをつけたメイン画像がサムネイルに使用されます。</p>
-                    <img src="@/img/salon-no-image.jpg" class="image-fluid">
+                    <img :src="imageRefUrl" class="image-fluid">
                     <div class="checkbox">
                         <input type="checkbox">
                     </div>
@@ -24,7 +24,7 @@
                 </div>
                 <!-- チェックボックス -->
                 <h5>メニューの設定</h5>
-                <ChkCategory ref="chkCategory" @catchCategories="CatchCategories"></ChkCategory>
+                <ChkCategory ref="chkCategory" :prpMapBlnFeatures="mapBlnFeatures" @catchCategories="CatchCategories"></ChkCategory>
                 <h5>地域の設定</h5>
                 <PullArea :numArea="prNumArea" @catchAreaID="ChangePrNumArea" :numPref="prNumPref" @catchPrefID="ChangePrNumPref"></PullArea>
                 <div class="form-group">
@@ -62,6 +62,7 @@ export default {
     },
     data () {
         return {
+            imageRefUrl: '',
             salonTitle: 'サロン名',
             salonID: '',
             txtSubArea: '詳細地域',
@@ -77,7 +78,8 @@ export default {
             blnHaveSalon: false,
             mapAreas: {},
             mapPrefs: {},
-            mapFeatures: {}
+            mapFeatures: {},
+            mapBlnFeatures: {}
         }
     },
     methods: {
@@ -95,6 +97,8 @@ export default {
                         this.blnHaveSalon = true
                         this.prNumArea = doc.get('area')['id']
                         this.prNumPref = doc.get('prefecture')['id']
+                        this.mapBlnFeatures = doc.get('features')
+                        console.log(this.mapBlnFeatures)
                     } else {
                         this.blnHaveSalon = false
                     }
@@ -167,6 +171,14 @@ export default {
                 }
             return mapSalonData
         },
+        GetSalonImg: function () {
+            var storageRef = firebase.storage().ref()
+            storageRef.child('salon-Image/salon-no-image.jpg').getDownloadURL().then( url => {
+                var noImageRef = url
+                this.imageRefUrl = noImageRef
+                console.log(this.imageRefUrl)
+            })
+        },
         ChangePrNumArea: function ( areaID ) {
             this.prNumArea = Number( areaID )
             this.prNumPref = -1
@@ -186,7 +198,6 @@ export default {
                     })
                 })
                 this.mapFeatures[key] = arrValues
-                console.log(this.mapFeatures)
             })
         },
     },
@@ -197,6 +208,7 @@ export default {
                 this.userID = firebase.auth().currentUser.uid
                 this.blnAuth = true
                 this.getSalonInfo()
+                this.GetSalonImg()
             } else {
                 this.name = ''
                 this.blnAuth = false
