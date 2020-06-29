@@ -5,7 +5,7 @@
         <p>こんにちは、{{ name }}さん</p>
         <div id="flexWrapperContainer">
           <LeftBar />
-          <MyPageTop />
+          <router-view/>
         </div>
       </div>
     </div>
@@ -14,7 +14,6 @@
  
 <script>
 import firebase from '@/firebase/firestore'
-import MyPageTop from '@/components/MyPageTop'
 import LeftBar from '@/components/LeftBar'
  
 export default {
@@ -37,7 +36,6 @@ export default {
       })
     },
     components: {
-      MyPageTop,
       LeftBar
     }
 }

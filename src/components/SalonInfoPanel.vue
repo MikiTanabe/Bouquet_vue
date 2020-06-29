@@ -167,7 +167,6 @@ export default {
                     userID: this.userID,
                     upDate: new Date(),
                     features: this.mapFeatures,
-                    //img: this.imageRefUrl
                 }
             return mapSalonData
         },
@@ -185,7 +184,6 @@ export default {
                 this.imageRefUrl = url
                 console.log('got Img!: ' + this.imageRefUrl)
             })
-            /* TODO: 画像取得できなかったときの処理 */
             .catch( noImgUrl  => {
                 this.imageRefUrl = noImgUrl
                 console.log('noImg')

@@ -16,6 +16,7 @@
 <script>
 import db from '@/firebase/firestore'
 import { getSalonImgUrl } from '@/js/Picture'
+import { FormatDate } from '@/js/gblFunction'
 
 export default {
     name: 'PickupSalon',
@@ -32,7 +33,7 @@ export default {
                 var salon = []
                 var strDate = ''
                 getSalonImgUrl( doc.id.toString() ).then( url => {
-                    strDate = this.FormatDate(doc.get('upDate').toDate())
+                    strDate = 'upDate ' + FormatDate(doc.get('upDate').toDate(), '-')
                     salon['id'] = doc.id.toString()
                     salon['name'] = doc.get('name')
                     salon['upDate'] = strDate
@@ -46,14 +47,14 @@ export default {
         })
     },
     methods: {
-        FormatDate: function (date) {
+        /* FormatDate: function (date) {
             var rtnDate = ''
             var tYear = date.getFullYear()
             var tMonth = date.getMonth() + 1
             var tDate = date.getDate()
             rtnDate = 'upDate ' + tYear + '-' + tMonth + '-' + tDate
             return rtnDate
-        },
+        },*/
         FormatFeatures: function (features) {
             var rtnFeatures = ''
             Object.keys( features ).forEach ( key => {

@@ -3,17 +3,17 @@
     <header>
         <div class="container">
             <div class="row">
-                <div class="pt-1 col-12 col-sm-6">
-                    <p class="clGray smallTxt">イメージコンサルティングサロン検索サイト</p>
+              <div class="pt-1 col-12 col-sm-6">
+                <p class="clGray smallTxt">イメージコンサルティングサロン検索サイト</p>
+              </div>
+              <div class="col-12" id="flexHeaderContainer">
+                <div class="col-3 flexHeaderChild clViolet largeTxt">
+                  <router-link to="/">Bouquet!</router-link>
                 </div>
-                <div class="col-12" id="flexHeaderContainer">
-                    <div class="col-3 flexHeaderChild clViolet largeTxt">
-                        <router-link to="/">Bouquet!</router-link>
-                    </div>
-                    <div class="col-3 flexHeaderChild flexRight clViolet">
-                        <!-- {{ userName }} -->▶<router-link v-bind:to="strLogin">{{ myPageMsg }}</router-link> ▶<router-link to="help">ヘルプ</router-link>
-                    </div>
+                <div class="col-3 flexHeaderChild flexRight clViolet">
+                  ▶<router-link v-bind:to="strLogin">{{ myPageMsg }}</router-link> ▶<router-link to="help">ヘルプ</router-link>
                 </div>
+              </div>
             </div>
         </div>
       </header>
@@ -40,7 +40,7 @@ export default {
       if (user) {
         this.userName = firebase.auth().currentUser.displayName + '様 : '
         this.myPageMsg = 'マイページ'
-        this.strLogin = '/home'
+        this.strLogin = '/home/mypagetop'
       } else {
         this.userName = ''
         this.myPageMsg = 'ログイン／新規登録'

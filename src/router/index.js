@@ -4,8 +4,10 @@ import Top from '../views/Top.vue'
 import BootstrapVue from 'bootstrap-vue'
 import Signup from '@/views/Signup.vue'
 import Signin from '@/views/Signin.vue'
-import MySalonInfo from '@/views/MySalonInfo.vue'
+import SalonInfoPanel from '@/components/SalonInfoPanel'
 import Home  from '@/views/Home.vue'
+import MyPageTop from '@/components/MyPageTop'
+import Profile from '@/components/ProfilePanel'
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
@@ -33,12 +35,21 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
     path: '/home',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/mysaloninfo',
-    name: 'MySalonInfo',
-    component: MySalonInfo,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'mysaloninfo',
+        component: SalonInfoPanel
+      },
+      {
+        path: 'mypagetop',
+        component: MyPageTop
+      },
+      {
+        path: 'profile',
+        component: Profile
+      }
+    ]
   }
 ]
 
