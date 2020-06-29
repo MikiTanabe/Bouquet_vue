@@ -9,18 +9,14 @@
                     <input type="text" v-model="salonTitle">
                 </div>
                 <!-- ファイルアップロード -->
-                <p>サロン画像</p>
+                <p>サロン画像(自動リサイズされます)</p>
                 <div class="images">
-                    <p>チェックをつけたメイン画像がサムネイルに使用されます。</p>
                     <img :src="imageRefUrl" class="image-fluid">
-                    <div class="checkbox">
-                        <input type="checkbox">
-                    </div>
                 </div>
                 <div class="form-group">
-                    <label>イメージの追加</label>
-                    <input type="file">
-                    <p class="smallTaxt">一般会員は1枚のみアップロード可能。プロ会員になると最大10枚まで追加できます。</p>
+                    <label>イメージの変更：</label>
+                    <input type="file" v-on:change="SelectImg">
+                    <!-- <p class="smallTaxt">一般会員は1枚のみアップロード可能。プロ会員になると最大10枚まで追加できます。</p> -->
                 </div>
                 <!-- チェックボックス -->
                 <h5>メニューの設定</h5>
@@ -53,6 +49,7 @@
 import ChkCategory from '@/components/ChkCategory.vue'
 import PullArea from '@/components/PullArea.vue'
 import firebase from '@/firebase/firestore'
+import { getSnapShot, uploadImgs, getSalonImgUrl } from '@/js/Picture'
 
 export default {
     name: 'SalonInfoPanel',
@@ -62,6 +59,7 @@ export default {
     },
     data () {
         return {
+            imgsSelected: null,
             imageRefUrl: '',
             salonTitle: 'サロン名',
             salonID: '',
@@ -83,11 +81,11 @@ export default {
         }
     },
     methods: {
-        getSalonInfo: function () {
+        getSalonInfo: async function () {
             var docRef = firebase.firestore().collection('salons')
             var query = docRef.where("userID", "==", this.userID)
             /* サロンデータの取得 */
-            query.get().then( querySnapshot => {
+            return query.get().then( querySnapshot => {
                 querySnapshot.forEach( doc => {
                     if (doc.exists) {
                         this.salonID = doc.id
@@ -98,11 +96,11 @@ export default {
                         this.prNumArea = doc.get('area')['id']
                         this.prNumPref = doc.get('prefecture')['id']
                         this.mapBlnFeatures = doc.get('features')
-                        console.log(this.mapBlnFeatures)
                     } else {
                         this.blnHaveSalon = false
                     }
                 })
+                return this.salonID
             })
         },
         GetAreaInfo: function () {
@@ -148,6 +146,7 @@ export default {
                     var mapSalonData = this.SetMapSalonInfo()
                     if ( this.blnHaveSalon ) {
                         this.ModifySalon( this.salonID, mapSalonData )
+                        this.addImgs()
                         alert('サロン情報を更新しました')
                     } else {
                         this.CreateSalon( mapSalonData )
@@ -167,16 +166,36 @@ export default {
                     introduction: this.txtIntroduction,
                     userID: this.userID,
                     upDate: new Date(),
-                    features: this.mapFeatures
+                    features: this.mapFeatures,
+                    //img: this.imageRefUrl
                 }
             return mapSalonData
         },
+        SelectImg: function ( img ) {
+            this.imgsSelected = img.target.files
+        },
+        addImgs: function () {
+            if (this.imgsSelected != null) {
+                uploadImgs( this.salonID, this.imgsSelected )  // 4
+            }
+        },
         GetSalonImg: function () {
-            var storageRef = firebase.storage().ref()
-            storageRef.child('salon-Image/salon-no-image.jpg').getDownloadURL().then( url => {
-                var noImageRef = url
-                this.imageRefUrl = noImageRef
-                console.log(this.imageRefUrl)
+            getSalonImgUrl( this.salonID ).then( url => {
+                console.log(this.salonID)
+                this.imageRefUrl = url
+                console.log('got Img!: ' + this.imageRefUrl)
+            })
+            /* TODO: 画像取得できなかったときの処理 */
+            .catch( noImgUrl  => {
+                this.imageRefUrl = noImgUrl
+                console.log('noImg')
+                console.log(noImgUrl)
+            })
+        },
+        GetVariableImgs: function () {
+            this.uid = firebase.auth().currentUser.uid
+            getSnapShot(this.userID, (data) => {   //5
+            this.imgs = data
             })
         },
         ChangePrNumArea: function ( areaID ) {
@@ -201,14 +220,16 @@ export default {
             })
         },
     },
-    mounted() {
+    created() {
         this.GetAreaInfo()
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 this.userID = firebase.auth().currentUser.uid
                 this.blnAuth = true
-                this.getSalonInfo()
-                this.GetSalonImg()
+                this.getSalonInfo().then ( salonid => {
+                    console.log('サロンID取得: ' + salonid)
+                    this.GetSalonImg()
+                })
             } else {
                 this.name = ''
                 this.blnAuth = false

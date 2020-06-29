@@ -4,7 +4,7 @@
             <div v-for="item in arrSalons" v-bind:key="item.id" class="pickUpsChild col-12 col-sm-2 pr-3 mr-3 mb-2">
                 <div>
                     <p class="smallTxt">{{ item.upDate }}</p>
-                    <img src="@/img/salon-no-image.jpg" class="img-fluid">
+                    <img :src="item.imgUrl" class="img-fluid">
                     <p class="salon-title">{{ item.name }}</p>
                     <p>{{ item.features }}</p>
                     <p>{{ item.prefecture }}  {{ item.subArea }}</p>
@@ -15,6 +15,7 @@
 </template>
 <script>
 import db from '@/firebase/firestore'
+import { getSalonImgUrl } from '@/js/Picture'
 
 export default {
     name: 'PickupSalon',
@@ -30,14 +31,17 @@ export default {
             DocumentSnapshot.forEach(doc => {
                 var salon = []
                 var strDate = ''
-                strDate = this.FormatDate(doc.get('upDate').toDate())
-                salon['id'] = doc.id.toString()
-                salon['name'] = doc.get('name')
-                salon['upDate'] = strDate
-                salon['features'] = this.FormatFeatures(doc.get('features'))
-                salon['prefecture'] = doc.get('prefecture')['name']
-                salon['subArea'] = doc.get('subArea')
-                this.arrSalons.push(salon)
+                getSalonImgUrl( doc.id.toString() ).then( url => {
+                    strDate = this.FormatDate(doc.get('upDate').toDate())
+                    salon['id'] = doc.id.toString()
+                    salon['name'] = doc.get('name')
+                    salon['upDate'] = strDate
+                    salon['features'] = this.FormatFeatures(doc.get('features'))
+                    salon['prefecture'] = doc.get('prefecture')['name']
+                    salon['subArea'] = doc.get('subArea')
+                    salon['imgUrl'] = url
+                    this.arrSalons.push(salon)
+                })
             })
         })
     },
