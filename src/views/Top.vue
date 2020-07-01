@@ -4,6 +4,12 @@
         <div id="contentsWrapper">
           <div class="contents">
             <div class="col-12">
+              <h1 class="clPink">新着イベント</h1>
+            </div>
+            <EventList />
+          </div>
+          <div class="contents">
+            <div class="col-12">
               <h1 class="clPink">Pick Up Salon</h1>
             </div>
             <div class="col-12">
@@ -16,12 +22,6 @@
               <h1 class="clPink">サロンを検索</h1>
             </div>
             <Categories @doSearch="DoSearch"></Categories>
-          </div>
-          <div class="contents">
-            <div class="col-12">
-              <h1 class="clPink">新着イベント</h1>
-            </div>
-            <EventList />
           </div>
         </div>
       </div>

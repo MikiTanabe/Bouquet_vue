@@ -1,6 +1,6 @@
 import { db, storage } from '@/firebase/firestore'
 
-export const getSnapShot = ( id, callback ) => {  // 6
+export const getSnapShot = ( id, callback ) => {
   db.collection('pictures').doc(id)
   .onSnapshot(query => {
     if (query.exists) {
@@ -11,23 +11,35 @@ export const getSnapShot = ( id, callback ) => {  // 6
   })
 }
 
-export const uploadImgs = async ( id, imgList ) => {
+export const uploadSalonImgs = async ( id, imgList ) => {
   imgList.forEach(async (img) => {
-    await storage.child(`${id}/salon-img1.jpg`).put(img)  // 7
+    await storage.child(`salon-Image/${id}/salon-img1.jpg`).put(img)
+  })
+}
+
+export const uploadEventImgs = async ( id, imgList ) => {
+  imgList.forEach(async (img) => {
+    await storage.child(`events/${id}/event-img1.jpg`).put(img)
   })
 }
 
 export async function getSalonImgUrl ( id ) {
-    console.log('受け取りID: ' + id)
     return storage.child(id + '/salon-img1.jpg').getDownloadURL().then( url => {
-                //console.log('画像URL: ' + url)
                 return url
             })
-            .catch( e => {
-                console.error('noImage: ' + e.message)
+            .catch( () => {
                 return storage.child('salon-Image/salon-no-image.jpg').getDownloadURL().then( noImgUrl => {
-                        //console.log('画像無しURL: ' + noImgUrl)
                         return noImgUrl
                     })
             })
+}
+
+export async function getEventImgUrl ( id ) {
+  return storage.child('events/' + id + '/event-img1.jpg').getDownloadURL().then( url => {
+    return url
+  }).catch( () => {
+    return storage.child('events/event-no-image.jpg').getDownloadURL().then( noImgUrl => {
+      return noImgUrl
+    })
+  })
 }

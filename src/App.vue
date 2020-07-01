@@ -4,11 +4,11 @@
         <div class="container">
             <div class="row">
               <div class="pt-1 col-12 col-sm-6">
-                <p class="clGray smallTxt">イメージコンサルティングサロン検索サイト</p>
+                <p class="clGray smallTxt">イメージコンサルティングの動画・イベント交流サイト</p>
               </div>
               <div class="col-12" id="flexHeaderContainer">
                 <div class="col-3 flexHeaderChild clViolet largeTxt">
-                  <router-link to="/">Bouquet!</router-link>
+                  <router-link to="/"><img src="@/img/logo.png" class="image-fluid"></router-link>
                 </div>
                 <div class="col-3 flexHeaderChild flexRight clViolet">
                   ▶<router-link v-bind:to="strLogin">{{ myPageMsg }}</router-link> ▶<router-link to="help">ヘルプ</router-link>
@@ -19,6 +19,7 @@
       </header>
     <div id="mainWrapper">
       <router-view/>
+      <!-- <div>ロゴは <a href="https://www.designevo.com/jp/logo-maker/" title="無料オンラインロゴメーカー">DesignEvo</a> ロゴメーカーさんに作られる</div> -->
     </div>
   </div>
 </template>
@@ -52,24 +53,5 @@ export default {
 </script>
 
 <style lang="scss">
-/* #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: left;
-  color: #2c3e50;
-}
 
-#nav {
-  padding: 10px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-} */
 </style>

@@ -16,7 +16,6 @@
                 <div class="form-group">
                     <label>イメージの変更：</label>
                     <input type="file" v-on:change="SelectImg">
-                    <!-- <p class="smallTaxt">一般会員は1枚のみアップロード可能。プロ会員になると最大10枚まで追加できます。</p> -->
                 </div>
                 <!-- チェックボックス -->
                 <h5>メニューの設定</h5>
@@ -49,7 +48,7 @@
 import ChkCategory from '@/components/ChkCategory.vue'
 import PullArea from '@/components/PullArea.vue'
 import firebase from '@/firebase/firestore'
-import { getSnapShot, uploadImgs, getSalonImgUrl } from '@/js/Picture'
+import { getSnapShot, uploadSalonImgs, getSalonImgUrl } from '@/js/Picture'
 
 export default {
     name: 'SalonInfoPanel',
@@ -87,7 +86,7 @@ export default {
             /* サロンデータの取得 */
             return query.get().then( querySnapshot => {
                 querySnapshot.forEach( doc => {
-                    if (doc.exists) {
+                    if ( doc.exists ) {
                         this.salonID = doc.id
                         this.salonTitle = doc.get('name')
                         this.txtSubArea = doc.get('subArea')
@@ -135,7 +134,7 @@ export default {
         },
         ModifySalon: function ( salonID, salonData ) {
             var salonRef = firebase.firestore().collection('salons').doc(salonID)
-                    salonRef.set( salonData )
+            salonRef.set( salonData )
         },
         AddOrModify: function ( ) {
             try {
@@ -150,6 +149,7 @@ export default {
                         alert('サロン情報を更新しました')
                     } else {
                         this.CreateSalon( mapSalonData )
+                        this.addImgs()
                         alert('サロンを新規登録しました')
                     }
                 }
@@ -175,19 +175,15 @@ export default {
         },
         addImgs: function () {
             if (this.imgsSelected != null) {
-                uploadImgs( this.salonID, this.imgsSelected )  // 4
+                uploadSalonImgs( this.salonID, this.imgsSelected )  // 4
             }
         },
         GetSalonImg: function () {
             getSalonImgUrl( this.salonID ).then( url => {
-                console.log(this.salonID)
                 this.imageRefUrl = url
-                console.log('got Img!: ' + this.imageRefUrl)
             })
             .catch( noImgUrl  => {
                 this.imageRefUrl = noImgUrl
-                console.log('noImg')
-                console.log(noImgUrl)
             })
         },
         GetVariableImgs: function () {
@@ -209,7 +205,6 @@ export default {
                 value[key].forEach( function ( array ) {
                     Object.keys( array ).forEach( function ( chKey ) {
                         if ( array[ chKey ] == true ) {
-                            console.log(array['text'])
                             arrValues.push( array[ 'text'] )
                         }
                     })
@@ -224,8 +219,7 @@ export default {
             if (user) {
                 this.userID = firebase.auth().currentUser.uid
                 this.blnAuth = true
-                this.getSalonInfo().then ( salonid => {
-                    console.log('サロンID取得: ' + salonid)
+                this.getSalonInfo().then ( () => {
                     this.GetSalonImg()
                 })
             } else {

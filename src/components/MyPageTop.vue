@@ -16,10 +16,9 @@
                     <tr><td class="table-info">地域</td><td>愛知県  名古屋市守山区</td></tr>
                   </tbody>
                 </table>
-                <router-link to="/mysalonInfo">サロン情報の編集</router-link>
+                <router-link to="mysalonInfo">サロン情報の編集</router-link>
               </div>
             </div>
-            <!-- <router-link to="/mySalonsInfo">>>more</router-link> -->
           </div>
         </div>
         <div class="myPageContentchild">
@@ -38,7 +37,7 @@
               <tr><td>懇親会</td><td>2020-07-30</td><td>名古屋のイメコンが集まります</td><td>hanako / ohanaStudio</td></tr>
             </tbody>
           </table>
-          <router-link to="/myeventadd">イベントの管理</router-link>
+          <router-link to="myeventinfo">イベントの管理</router-link>
         </div>
     </div>
 </template>

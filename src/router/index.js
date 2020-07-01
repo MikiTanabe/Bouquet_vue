@@ -4,10 +4,12 @@ import Top from '../views/Top.vue'
 import BootstrapVue from 'bootstrap-vue'
 import Signup from '@/views/Signup.vue'
 import Signin from '@/views/Signin.vue'
-import SalonInfoPanel from '@/components/SalonInfoPanel'
 import Home  from '@/views/Home.vue'
+import MyEventInfo from '@/views/MyEventInfo'
+import EventInfoEdit from '@/views/EventInfoEdit'
 import MyPageTop from '@/components/MyPageTop'
 import Profile from '@/components/ProfilePanel'
+import SalonInfoPanel from '@/components/SalonInfoPanel'
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
@@ -48,6 +50,16 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
       {
         path: 'profile',
         component: Profile
+      },
+      {
+        path: 'myeventinfo',
+        component: MyEventInfo
+      },
+      {
+        path: 'eventinfoedit',
+        name: 'EventEdit',
+        component: EventInfoEdit,
+        props: true
       }
     ]
   }
