@@ -40,15 +40,24 @@ export async function GetEventData ( uid ) {
     })
 }
 
-export async function GetOneEventData(eventid) {
+export async function GetOneEventData( eventid ) {
+    let empEvent = {
+        id: 'noUser',
+        title: 'noTitle',
+        introduction: 'noIntroduction',
+        consultantName: 'noConsultantName',
+        date: FormatDate( new Date(), '-'),
+        salonId: 'noSalon',
+        salonName: 'noSalonName',
+        imgUrl: ''
+    }
     if ( eventid == '' ){
         eventid = 'sample'
     }
-    console.log('eventid: ' + eventid)
-    var docRef = db.collection('events').doc(eventid)
-    return docRef.get().then( doc => {
-        if ( doc.exists ) {
-            var mapEvent = {}
+    var docRef = db.collection( 'events' ).doc(eventid)
+    return docRef.get().then( function( doc ) {
+        if (doc.exists) {
+        var mapEvent = {}
             mapEvent[ 'id' ] = doc.id
             mapEvent[ 'title' ] = doc.get( 'title' )
             mapEvent[ 'introduction' ] = doc.get( 'introduction' )
@@ -57,21 +66,57 @@ export async function GetOneEventData(eventid) {
             mapEvent[ 'salonId' ] = doc.get( 'salonId' )
             mapEvent[ 'salonName' ] = doc.get( 'salonName' )
             mapEvent[ 'join' ] = doc.get( 'join' )
-            getEventImgUrl( doc.id ).then( ImgUrl => {
+            return getEventImgUrl( doc.id ).then( ImgUrl => {
                 mapEvent[ 'imgUrl' ] = ImgUrl
                 return mapEvent
             })
+        } else {
+            return empEvent
         }
-    }).catch ( () => {
-        var empEvent = {}
-        empEvent[ 'id' ] = 'noUser'
-        empEvent[ 'title' ] = 'noTitle'
-        empEvent[ 'introduction' ] = 'noIntroduction'
-        empEvent[ 'consultantName' ] = 'noConsultantName'
-        empEvent[ 'date' ] = FormatDate( new Date(), '-')
-        empEvent[ 'salonId' ] = 'noSalon'
-        empEvent[ 'salonName' ] = 'noSalonName'
-        empEvent[ 'imgUrl' ] = ''
+    }).catch( function ( error ) {
+        console.log('Error getting document:', error)
         return empEvent
     })
+}
+
+export async function GetConsultantName( uid ) {
+    let name = 'noName'
+    var docRef = db.collection( 'consultants' )
+    var query = docRef.where( 'uid', '==', uid )
+    return query.get().then( function( DocumentSnapshot ) {
+            DocumentSnapshot.forEach( function( doc ) {
+                name = doc.get( 'name' )
+            })
+        return name
+    }).catch ( function( error ) {
+        console.log('noSuch a Document:', error )
+        return name
+    })
+}
+
+export async function GetSalonName( uid ) {
+    let name = 'noName'
+    var docRef = db.collection( 'salons' )
+    var query = docRef.where( 'userID', '==', uid )
+    return query.get().then( function( DocumentSnapshot ) {
+        DocumentSnapshot.forEach( function( doc ) {
+            name = doc.get( 'name' )
+        })
+        return name
+    }).catch ( function( error ) {
+        console.log('noSuch a Document:', error )
+        return name
+    })
+}
+
+export async function GetUserList ( txtSearch ) {
+    //let docRef = db.collection( 'consultants' )
+    //var query
+    if ( txtSearch == '' ){
+        /*query = docRef.get()*/
+    } else {
+
+        /*query = docRef.where( 'name', '==', txtSearch )*/
+    }
+
 }
