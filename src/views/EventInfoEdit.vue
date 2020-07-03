@@ -1,6 +1,6 @@
 <template>
     <div class="myPageContents">
-        <AddParticipant :prpOpenWindow="openAddWindow" @form-closing="CloseAddWindow"/>
+        <AddParticipant :prpOpenWindow="openAddWindow" @form-closing="CloseAddWindow" @send-invite="GetInviteUsers" />
         <DelParticipant :prpOpenWindow="openDelWindow" @form-closing="CloseDelWindow"/>
         <h2>イベント情報の編集</h2>
         <div class="myPageContentchild">
@@ -141,13 +141,14 @@ export default {
         },
         CloseAddWindow: function () {
             this.openAddWindow = false
+        },
+        GetInviteUsers: function ( userList ) {
+            console.log(userList)
         }
     },
     created () {
         this.eventId = this.cpEventId
-        console.log('OneEventID: ' + this.eventId)
         GetOneEventData( this.eventId ).then( mapEventData =>{
-            console.log('gotData: ',mapEventData)
             this.$set(this.eventData, 'title', mapEventData[ 'title' ])
             this.$set(this.eventData, 'introduction', mapEventData[ 'introduction' ])
             this.$set(this.eventData, 'consultantName', mapEventData[ 'consultantName' ])
@@ -157,9 +158,9 @@ export default {
             this.$set(this.eventData, 'join', mapEventData[ 'join' ])
             getEventImgUrl( this.cpEventId ).then( ImgUrl => {
                 this.$set(this.eventData, 'imgUrl', ImgUrl)
-                console.log(this.eventData)
             })
             this.SetParticipantsList( this.eventData[ 'join' ] )
+            /* TODO:pre-joinのデータを追加する */
         })
     }
 }

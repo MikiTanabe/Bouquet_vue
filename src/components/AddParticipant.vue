@@ -8,25 +8,28 @@
             <button v-on:click.prevent="btnSearchClick" class="btn btn-primary">検索</button></p>
             <div id="userList" v-show="showList">
                 <div class="form-group mb-1">
-                    <select class="col-8 mb-0" name="joinList" size="3" multiple>
-                        <option value="hana">はな / Bouquet!</option>
+                    <select class="col-8 mb-0" name="joinList" size="3" v-model="arrSelected" multiple>
+                        <option v-for="item in arrUserList" v-bind:key="item.id" v-bind:value="item.id">{{ item.name }} / {{ item.salon }}</option>
                     </select>
                 </div>
             </div>
         </div>
         <p><button v-on:click.prevent="CloseWindow" class="btn btn-outline-secondary mr-2">戻る</button>
-        <button v-on:click.prevent="function () {console.log('依頼')}" class="btn btn-success">招待</button></p>
+        <button v-on:click.prevent="btnInviteClick" class="btn btn-success">招待</button></p>
     </div>
 </div>
 </template>
 <script>
+import { GetUserList } from '@/js/Data'
+
 export default {
     name: 'AddParticipant',
     data () {
         return {
             txtSearch: 'ユーザ名、サロン名',
             showList: false,
-            arrUser: []
+            arrUserList: [],
+            arrSelected: []
         }
     },
     props: {
@@ -42,11 +45,24 @@ export default {
     },
     methods: {
         CloseWindow: function () {
-            console.log('Close window.')
             this.$emit('form-closing')
         },
         btnSearchClick: function () {
-            this.showList = true
+            this.arrUserList.splice(0)
+            GetUserList( this.txtSearch ).then( arrUser => {
+                arrUser.forEach( user => {
+                    Object.keys( user ).forEach( key =>{
+                        this.arrUserList.push(user[key])
+                    })
+                })
+                this.showList = true
+            }).catch( () => {
+                this.showList = false
+            })
+        },
+        btnInviteClick: function () {
+            this.$emit('send-invite', this.arrSelected )
+            this.$emit('form-closing')
         }
     }
 }

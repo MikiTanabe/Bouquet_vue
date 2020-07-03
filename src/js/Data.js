@@ -110,13 +110,30 @@ export async function GetSalonName( uid ) {
 }
 
 export async function GetUserList ( txtSearch ) {
-    //let docRef = db.collection( 'consultants' )
-    //var query
-    if ( txtSearch == '' ){
-        /*query = docRef.get()*/
+    let docRef = db.collection( 'consultants' )
+    var arrQuery = []
+    if ( txtSearch != '' ){
+        var arrSearch = txtSearch.split(/[\x20\u3000]/)
+        arrSearch.forEach( name => {
+            arrQuery.push( docRef.where( 'keyWords', 'array-contains', name ) )
+        })
     } else {
-
-        /*query = docRef.where( 'name', '==', txtSearch )*/
+        arrQuery.push( docRef )
     }
-
+    const promises = []
+    arrQuery.forEach( query => {
+        const promise = query.get().then( DocumentSnapshot => {
+            var arrUsers = []
+            DocumentSnapshot.forEach( doc =>{
+                var mapUser = {}
+                mapUser[ 'id' ] = doc.id
+                mapUser[ 'name' ] = doc.get( 'name' )
+                mapUser[ 'salon' ] = doc.get( 'salonName' )
+                arrUsers.push(mapUser)
+            })
+            return arrUsers
+        })
+        promises.push(promise)
+    })
+    return Promise.all(promises)
 }
