@@ -42,14 +42,16 @@ export async function GetEventData ( uid ) {
 
 export async function GetOneEventData( eventid ) {
     let empEvent = {
-        id: 'noUser',
+        id: 'noEvent',
         title: 'noTitle',
         introduction: 'noIntroduction',
         consultantName: 'noConsultantName',
         date: FormatDate( new Date(), '-'),
         salonId: 'noSalon',
         salonName: 'noSalonName',
-        imgUrl: ''
+        imgUrl: '',
+        blnHaveEvent: false,
+        preJoin: ['']
     }
     if ( eventid == '' ){
         eventid = 'sample'
@@ -66,6 +68,13 @@ export async function GetOneEventData( eventid ) {
             mapEvent[ 'salonId' ] = doc.get( 'salonId' )
             mapEvent[ 'salonName' ] = doc.get( 'salonName' )
             mapEvent[ 'join' ] = doc.get( 'join' )
+            mapEvent[ 'preJoin' ] = doc.get( 'preJoin' )
+            mapEvent[ 'uid' ] = doc.get( 'uid' )
+            if (eventid == 'sample') {
+                mapEvent[ 'blnHaveEvent' ] = false
+            } else {
+                mapEvent[ 'blnHaveEvent' ] = true
+            }
             return getEventImgUrl( doc.id ).then( ImgUrl => {
                 mapEvent[ 'imgUrl' ] = ImgUrl
                 return mapEvent
@@ -95,6 +104,7 @@ export async function GetConsultantName( uid ) {
 }
 
 export async function GetSalonName( uid ) {
+    console.log('GetSalonName: ', uid)
     let name = 'noName'
     var docRef = db.collection( 'salons' )
     var query = docRef.where( 'userID', '==', uid )
@@ -126,7 +136,7 @@ export async function GetUserList ( txtSearch ) {
             var arrUsers = []
             DocumentSnapshot.forEach( doc =>{
                 var mapUser = {}
-                mapUser[ 'id' ] = doc.id
+                mapUser[ 'id' ] = doc.get( 'uid' )
                 mapUser[ 'name' ] = doc.get( 'name' )
                 mapUser[ 'salon' ] = doc.get( 'salonName' )
                 arrUsers.push(mapUser)

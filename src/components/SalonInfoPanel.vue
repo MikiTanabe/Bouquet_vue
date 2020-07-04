@@ -171,6 +171,7 @@ export default {
             return mapSalonData
         },
         SelectImg: function ( img ) {
+            console.log('selectImg', img)
             this.imgsSelected = img.target.files
         },
         addImgs: function () {

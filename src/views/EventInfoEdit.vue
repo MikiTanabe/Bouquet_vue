@@ -32,19 +32,23 @@
                 <div class="col-12 mb-3">
                     <div class="form-group mb-1">
                         <select class="col-10 mb-0" name="joinList" size="3" multiple>
-                            <option v-for="item in participants" v-bind:key="item.user">{{ item.name }} / {{ item.salon }}</option>
+                            <option v-for="item in participants" v-bind:key="item.user">
+                                {{ item.name }} / {{ item.salon }}
+                                 <p v-if="item.status.preJoin">（招待中）</p>
+                                 <p v-if="item.status.delete">（参加取消中）</p>
+                            </option>
                         </select>
                     </div>
-                    <button v-on:click.prevent="OpenAddWindow" class="btn btn-primary mr-2">追加</button>
-                    <button v-on:click.prevent="OpenDelWindow" class="btn btn-danger">参加取消</button>
+                    <button v-on:click.prevent="OpenAddWindow" class="btn btn-sm btn-outline-primary mr-2">招待追加</button>
+                    <button v-on:click.prevent="OpenDelWindow" class="btn btn-sm btn-outline-danger">招待取消</button>
                 </div>
                 <h5>イベントURL(任意)</h5>
-                <section>Youtube、イベント告知ページ等</section>
-                <div class="form-group">
-                    <input type="text" v-model="eventData.txtUrl">
+                <div class="form-group col-12 mb-3">
+                    <p>Youtube、イベント告知ページ等</p>
+                    <input type="text" v-model="eventData.txtUrl" class="col-10">
                 </div>
-                <button v-on:click.prevent="AddOrModify" class="btn btn-primary mr-2">保存</button>
-                <button v-on:click.prevent="Delete" class="btn btn-danger">削除</button>
+                <button v-on:click.prevent="AddOrModify" class="btn btn-primary col-3 mr-2">保存</button>
+                <button v-on:click.prevent="Delete" class="btn btn-danger col-3">削除</button>
             </form>
         </div>
         <p>>>一覧へ戻る</p>
@@ -52,9 +56,11 @@
 </template>
 <script>
 import { GetOneEventData, GetConsultantName, GetSalonName } from '@/js/Data'
-import { getEventImgUrl } from '@/js/Picture'
+import { getEventImgUrl, uploadEventImgs } from '@/js/Picture'
 import AddParticipant from '@/components/AddParticipant'
 import DelParticipant from '@/components/DelParticipant'
+import { db } from '@/firebase/firestore'
+import { BqDateParse } from '@/js/gblFunction'
 
 export default {
     name: 'EventInfoEdit',
@@ -68,14 +74,18 @@ export default {
                 evdate: new Date(),
                 salonId: 'サロンID',
                 salonName: 'サロン名',
-                promoter: ['主催者'],
                 join: ['参加者'],
+                'pre-join': ['招待者'],
+                delete: ['招待取消者'],
                 imgUrl: 'noImage',
-                txtUrl: 'イベントURL'
+                txtUrl: 'イベントURL',
+                uid: 'ユーザID'
             },
             participants: [],
             openAddWindow: false,
-            openDelWindow: false
+            openDelWindow: false,
+            blnHaveEvent: false,
+            imgsSelected: null,
         }
     },
     components: {
@@ -91,7 +101,7 @@ export default {
     computed: {
         cpEventId: function () {
             return this.prpEventId
-        }
+        },
     },
     watch: {
         cpEventId: function ( newVal ) {
@@ -102,29 +112,104 @@ export default {
         Delete: function () {
             console.log('delete')
         },
-        AddOrModify: function () {
-            console.log('addOrModify')
+        CreateEvent: function ( eventData ) {
+            db.collection("events").add( eventData )
+            .then(function(docRef) {
+                console.log("Document written with ID: ", docRef.id);
+            })
+            .catch(function(error) {
+                console.error("Error adding document: ", error);
+            })
         },
-        SelectImg: function () {
-            console.log('selectImg')
+        ModifyEvent: function ( eventID, eventData ) {
+            var eventRef = db.collection('events').doc(eventID)
+            eventRef.set( eventData )
         },
-        SetParticipantsList: function ( arrUser ) {
+        AddOrModify: function ( ) {
+            try {
+                    var mapEventData = this.SetMapEventInfo()
+                    if ( this.blnHaveEvent ) {
+                        this.ModifyEvent( this.eventId, mapEventData )
+                        this.AddImg()
+                        alert('イベント情報を更新しました')
+                    } else {
+                        this.CreateSalon( mapEventData )
+                        this.AddImg()
+                        alert('イベントを新規登録しました')
+                    }
+            } catch ( e ) {
+                alert(e.message)
+            }
+        },
+        SelectImg: function ( img ) {
+            this.imgsSelected = img.target.files
+        },
+        AddImg: function () {
+            if (this.imgsSelected != null) {
+                uploadEventImgs( this.cpEventId, this.imgsSelected ).then( url => {
+                    this.eventData.imgUrl = url
+                })
+            }
+        },
+        SetMapEventInfo: function () {
+            var mapEventData = {
+                    title: this.eventData.title,
+                    introduction: this.eventData.introduction,
+                    uid: this.eventData.uid,
+                    upDate: new Date(),
+                    consultantName: this.eventData.consultantName,
+                    date: BqDateParse( this.eventData.evdate ),
+                    salonId: this.eventData.salonId,
+                    salonName: this.eventData.salonName,
+                    join: this.eventData.join,
+                    preJoin: this.eventData.preJoin,
+                    //delete: this.eventData.delete,
+                    imgUrl: this.eventData.imgUrl,
+                    txtUrl: this.eventData.txtUrl,
+                }
+            return mapEventData
+        },
+        SetParticipantsList: function ( arrUser, status ) {
             arrUser.forEach( uid => {
                 var mapParticipant = {}
                 GetConsultantName( uid ).then( name => {
-                    mapParticipant[ 'name' ] = name
+                    this.$set(mapParticipant, 'name', name )
                 }).then( GetSalonName ( uid ).then( salon => {
-                    mapParticipant[ 'salon' ] = salon
+                    this.$set(mapParticipant, 'salon', salon )
                 })
                 ).then( () => {
                     mapParticipant[ 'user' ] = uid
+                    switch( status ){
+                        case 'join':
+                            this.$set( mapParticipant, 'status', {
+                                preJoin: false,
+                                delete: false
+                            })
+                            break
+                        case 'pre-join':
+                            this.$set(mapParticipant, 'status', {
+                                preJoin: true,
+                                delete: false
+                            })
+                            break
+                        case 'delete':
+                            this.$set( mapParticipant, 'status', {
+                                preJoin: false,
+                                delete: true
+                            })
+                            break
+                    } 
                     this.participants.push( mapParticipant )
                 }).catch( error => {
-                    mapParticipant = {
+                    this.$set( mapParticipant, {
                         name: 'noName',
                         salon: 'noSalon',
-                        user: ''
-                    }
+                        user: '',
+                        status: {
+                            preJoin: false,
+                            delete: false
+                        }
+                    })
                     console.log('FailedGetGuests:', error)
                     this.participants.push( mapParticipant )
                 })
@@ -143,7 +228,31 @@ export default {
             this.openAddWindow = false
         },
         GetInviteUsers: function ( userList ) {
-            console.log(userList)
+            this.AddUserList( userList ) 
+        },
+        AddUserList: function ( newUserList ) {
+            let lenJoinUser = this.eventData.join.length
+            let lenPreUser = this.eventData.preJoin.length
+            newUserList.forEach( user => {
+                for(var i = 0; i < lenJoinUser; i++ ){
+                    if( this.eventData.join[i] == user ){
+                        alert('すでに参加・招待中のユーザーです')
+                        break
+                    } else {
+                        for(var j = 0; i < lenPreUser; j++) {
+                            if( this.eventData.preJoin[j] == user ){
+                                alert('すでに参加・招待中のユーザーです')
+                                break
+                            } else {
+                                this.eventData.preJoin.push( user )
+                            }
+                        }
+                    }
+                }
+            })
+            this.participants.splice(0)
+            this.SetParticipantsList( this.eventData[ 'join' ], 'join' )
+            this.SetParticipantsList( this.eventData[ 'preJoin' ], 'pre-join' )
         }
     },
     created () {
@@ -156,11 +265,15 @@ export default {
             this.$set(this.eventData, 'salonId', mapEventData[ 'salonId' ])
             this.$set(this.eventData, 'salonName', mapEventData[ 'salonName' ])
             this.$set(this.eventData, 'join', mapEventData[ 'join' ])
+            this.$set(this.eventData, 'preJoin', mapEventData[ 'preJoin' ])
+            this.$set(this.eventData, 'uid', mapEventData[ 'uid' ])
+            this.blnHaveEvent = mapEventData[ 'blnHaveEvent' ]
             getEventImgUrl( this.cpEventId ).then( ImgUrl => {
                 this.$set(this.eventData, 'imgUrl', ImgUrl)
             })
-            this.SetParticipantsList( this.eventData[ 'join' ] )
-            /* TODO:pre-joinのデータを追加する */
+            this.SetParticipantsList( this.eventData[ 'join' ], 'join' )
+            this.SetParticipantsList( this.eventData[ 'preJoin' ], 'pre-join' )
+            //TODO: deleteのデータを追加する
         })
     }
 }
@@ -191,4 +304,5 @@ export default {
     .myPageContentchild {
         padding-bottom: 10px;
     }
+
 </style>

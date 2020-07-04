@@ -21,10 +21,14 @@ export const uploadEventImgs = async ( id, imgList ) => {
   imgList.forEach(async (img) => {
     await storage.child(`events/${id}/event-img1.jpg`).put(img)
   })
+  return storage.child(`events/${id}/event-img1.jpg`).getDownloadURL().then( url =>{
+    console.log(url)
+    return url
+  })
 }
 
 export async function getSalonImgUrl ( id ) {
-    return storage.child(id + '/salon-img1.jpg').getDownloadURL().then( url => {
+    return storage.child('salon-Image/' + id + '/salon-img1.jpg').getDownloadURL().then( url => {
                 return url
             })
             .catch( () => {

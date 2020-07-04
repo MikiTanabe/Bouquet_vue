@@ -10,3 +10,11 @@ export function FormatDate ( date, strDigit ) {
     rtnDate = tYear + strDigit + tMonth + strDigit + tDate
     return rtnDate
 }
+
+export function BqDateParse ( strDate ) {
+    //YYYY-MM-DD用
+    let year = strDate.substr( 0, 4 )
+    let month = strDate.substr( 5, 2 ) - 1
+    let date = strDate.substr( 8, 2 )
+    return new Date( year, month, date)
+}
