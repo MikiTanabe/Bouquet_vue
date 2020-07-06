@@ -147,3 +147,29 @@ export async function GetUserList ( txtSearch ) {
     })
     return Promise.all(promises)
 }
+
+/* コンサルタントプロフィールの取得 */
+export async function GetConsultantProfile ( uid ) {
+    let docRef = db.collection('consultants')
+    let query = docRef.where("uid", "==", uid)
+    
+    return query.get().then( querySnapshot => {
+        let mapConsultantProf = {
+            consulName: 'noName',
+            certification: 'noCertification',
+            birth: 'noBirthDay',
+            introduction: 'noDescribe',
+            blnShowBirth: false
+        }
+        querySnapshot.forEach( doc => {
+            if (doc.exists) {
+                mapConsultantProf[ 'consulName' ] = doc.get('name')
+                mapConsultantProf[ 'certification' ] = doc.get('certification')
+                mapConsultantProf[ 'birth' ] = FormatDate(doc.get('birth').toDate(), '-')
+                mapConsultantProf[ 'introduction' ] = doc.get('introduction')
+                mapConsultantProf[ 'blnShowBirth' ] = doc.get('showBirth')
+            }
+        })
+        return mapConsultantProf
+    })
+}

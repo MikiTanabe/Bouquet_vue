@@ -2,31 +2,58 @@
     <div class="myPageContents">
         <h2>コンサルタントプロフィール</h2>
         <div class="myPageContentchild">
-            <div class="salon col-12">
-                <div class="borderPink">
-                    <div class="salonImg">
-                        <img src="@/img/salon-no-image.jpg" class="img-fluid">
+            <div class="m-2">
+                <form>
+                    <div class="form-group mb-3">
+                        <div class="salonImg mb-1">
+                            <img src="@/img/salon-no-image.jpg" class="img-fluid">
+                        </div>
+                        <label for="profileImg">プロフィール画像</label>
+                        <input type="file" class="form-control-file" id="profileImg">
                     </div>
-                    <div class="profileInfo m-2">
-                        <table class="table table-sm">
-                        <tbody>
-                            <tr><td class="table-info">名前</td><td>{{ consulName }}</td></tr>
-                            <tr><td class="table-info">生年月日</td><td>{{ birth }}</td></tr>
-                            <tr><td class="table-info">資格</td><td>{{ certification }}</td></tr>
-                            <tr><td class="table-info">自己紹介</td><td>{{ introduction }}</td></tr>
-                        </tbody>
-                        </table>
-                        <router-link to="/mysalonInfo">コンサルタント情報の編集</router-link>
+                    <div class="form-group mb-2">
+                        <div class="row">
+                            <div class="col-xs-4 mr-2">
+                                <label>名前</label>
+                            </div>
+                            <div class="col-xs-8">
+                                <input type="text" name="consulName" class="form-control" v-model="consulName">
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="form-group mb-3">
+                        <div class="row">
+                            <div class="col-xs-4 mr-2">
+                                <label>生年月日</label>
+                            </div>
+                            <div class="col-xs-8">
+                                <input type="date" name="birth" class="form-control" v-model="birth">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="row">
+                            <label>資格など</label>
+                            <textarea v-model="certification" name="certification" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group mb-2">
+                        <div class="row">
+                            <label>自己紹介</label>
+                            <textarea v-model="introduction" class="form-control" name="introduction"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <p><router-link to="/mysalonInfo">プレビュー</router-link></p>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { db } from '@/firebase/firestore'
+//import { db } from '@/firebase/firestore'
 import { getUser } from '@/js/User.js'
-import { FormatDate } from '@/js/gblFunction'
+//import { FormatDate } from '@/js/gblFunction'
+import { GetConsultantProfile } from '@/js/Data'
 
 export default {
     name: 'ProfilePanel',
@@ -36,29 +63,22 @@ export default {
             consulName: '',
             certification: '',
             birth: '',
-            introduction: ''
+            introduction: '',
+            blnShowBirth: false
         }
     },
     methods: {
-        GetInfo: function ( uid ) {
-            var docRef = db.collection('consultants')
-            var query = docRef.where("uid", "==", uid)
-            /* コンサルタントプロフィールの取得 */
-            query.get().then( querySnapshot => {
-                querySnapshot.forEach( doc => {
-                    if (doc.exists) {
-                        this.consulName = doc.get('name')
-                        this.certification = doc.get('certification')
-                        this.birth = FormatDate(doc.get('birth').toDate(), '/')
-                        this.introduction = doc.get('introduction')
-                    } 
-                })
-            })
-        }
+        
     },
     created () {
         this.userID = getUser()
-        this.GetInfo( this.userID )
+        GetConsultantProfile( this.userID ).then ( mapProfile => {
+            this.consulName = mapProfile[ 'consulName' ]
+            this.certification = mapProfile[ 'certification' ]
+            this.birth = mapProfile[ 'birth' ]
+            this.introduction = mapProfile[ 'introduction' ]
+            this.blnShowBirth = mapProfile[ 'showBirth' ]
+        })
     }
 }
 </script>
@@ -87,10 +107,6 @@ export default {
 
     .myPageContentchild {
         padding-bottom: 10px;
-    }
-
-    .profileInfo {
-        margin: 0px 10px;
     }
 
     .borderPink {
