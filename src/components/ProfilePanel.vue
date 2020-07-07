@@ -6,10 +6,10 @@
                 <form>
                     <div class="form-group mb-3">
                         <div class="salonImg mb-1">
-                            <img src="@/img/salon-no-image.jpg" class="img-fluid">
+                            <img :src="profileImgUrl" class="img-fluid">
                         </div>
                         <label for="profileImg">プロフィール画像</label>
-                        <input type="file" class="form-control-file" id="profileImg">
+                        <input type="file" class="form-control-file" id="profileImg" v-on:change="SelectImg">
                     </div>
                     <div class="form-group mb-2">
                         <div class="row">
@@ -24,10 +24,12 @@
                     <div class="form-group mb-3">
                         <div class="row">
                             <div class="col-xs-4 mr-2">
-                                <label>生年月日</label>
+                                <label for="birth">生年月日</label>
                             </div>
                             <div class="col-xs-8">
                                 <input type="date" name="birth" class="form-control" v-model="birth">
+                                <label for="chkBirth">誕生年を表示する</label>
+                                <input type="checkbox" name="chkBirth" v-model="blnShowBirth">
                             </div>
                         </div>
                     </div>
@@ -44,41 +46,110 @@
                         </div>
                     </div>
                 </form>
-                <p><router-link to="/mysalonInfo">プレビュー</router-link></p>
+                <p><router-link to="profilesample">プレビュー</router-link></p>
+                <button class="btn btn-primary" v-on:click.prevent="AddOrModify">保存</button>
             </div>
         </div>
     </div>
 </template>
 <script>
-//import { db } from '@/firebase/firestore'
+import { db } from '@/firebase/firestore'
 import { getUser } from '@/js/User.js'
-//import { FormatDate } from '@/js/gblFunction'
-import { GetConsultantProfile } from '@/js/Data'
+import { BqDateParse } from '@/js/gblFunction'
+import { GetConsultantProfile, GetSalonName } from '@/js/Data'
+import { uploadProfileImgs, getProfileImgUrl } from '@/js/Picture'
 
 export default {
     name: 'ProfilePanel',
     data () {
         return {
             userID: '',
+            salonName: '',
+            consulID: '',
             consulName: '',
             certification: '',
             birth: '',
             introduction: '',
-            blnShowBirth: false
+            profileImgUrl: '',
+            imgsSelected: null,
+            blnShowBirth: false,
+            blnHaveProfile: false
         }
     },
     methods: {
-        
+        SelectImg: function ( img ) {
+            this.imgsSelected = img.target.files
+        },
+        addImgs: async function () {
+            if (this.imgsSelected != null) {
+                await uploadProfileImgs( this.consulID, this.imgsSelected ).then( url => {
+                    this.profileImgUrl = url
+                })
+            }
+        },
+        CreateProfile: function ( profileData ) {
+                db.collection("consultants").add( profileData )
+                .then(function(docRef) {
+                    console.log("Document written with ID: ", docRef.id);
+                })
+                .catch(function(error) {
+                    console.error("Error adding document: ", error);
+                })
+        },
+        ModifyProfile: function ( consultantID, profileData ) {
+            var profRef = db.collection('consultants').doc(consultantID)
+            profRef.set( profileData )
+        },
+        AddOrModify: async function () {
+            try {
+                await this.addImgs()
+                var mapProfile = this.SetMapProfile()
+                if ( this.blnHaveProfile ) {
+                    this.ModifyProfile( this.consulID, mapProfile )
+                    alert('コンサルタントプロフィールを更新しました')
+                } else {
+                    this.CreateProfile( mapProfile )
+                    alert('コンサルタントプロフィールを新規登録しました')
+                }
+            } catch ( e ) {
+                alert(e.message)
+            }
+        },
+        SetMapProfile: function () {
+            var mapProfileData = {
+                uid: this.userID,
+                consulName: this.consulName,
+                salonName: this.salonName,
+                certification: this.certification,
+                birth: BqDateParse( this.birth ),
+                introduction: this.introduction,
+                profileImgUrl: this.profileImgUrl,
+                showBirth: this.blnShowBirth,
+                keyWords: [ this.consulName, this.salonName ]
+            }
+            return mapProfileData
+        },
     },
     created () {
         this.userID = getUser()
         GetConsultantProfile( this.userID ).then ( mapProfile => {
+            this.consulID = mapProfile[ 'consultantID' ]
             this.consulName = mapProfile[ 'consulName' ]
             this.certification = mapProfile[ 'certification' ]
             this.birth = mapProfile[ 'birth' ]
             this.introduction = mapProfile[ 'introduction' ]
-            this.blnShowBirth = mapProfile[ 'showBirth' ]
+            this.blnShowBirth = mapProfile[ 'blnShowBirth' ]
+            this.blnHaveProfile = mapProfile[ 'blnHaveProfile' ]
+            return this.consulID
         })
+        .then( consulid => {
+            getProfileImgUrl( consulid ).then ( url => {
+                this.profileImgUrl = url
+            })
+        })
+        .then( GetSalonName( this.userID ).then( salon => {
+            this.salonName = salon
+        }))
     }
 }
 </script>

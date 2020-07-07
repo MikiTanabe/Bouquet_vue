@@ -7,6 +7,7 @@ import Signin from '@/views/Signin.vue'
 import Home  from '@/views/Home.vue'
 import MyEventInfo from '@/views/MyEventInfo'
 import EventInfoEdit from '@/views/EventInfoEdit'
+import ProfileSample from '@/views/ProfileSample'
 import MyPageTop from '@/components/MyPageTop'
 import Profile from '@/components/ProfilePanel'
 import SalonInfoPanel from '@/components/SalonInfoPanel'
@@ -60,6 +61,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
         name: 'EventEdit',
         component: EventInfoEdit,
         props: true
+      },
+      {
+        path: 'profilesample',
+        component: ProfileSample
       }
     ]
   }

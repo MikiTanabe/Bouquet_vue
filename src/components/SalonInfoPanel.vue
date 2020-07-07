@@ -171,12 +171,11 @@ export default {
             return mapSalonData
         },
         SelectImg: function ( img ) {
-            console.log('selectImg', img)
             this.imgsSelected = img.target.files
         },
         addImgs: function () {
             if (this.imgsSelected != null) {
-                uploadSalonImgs( this.salonID, this.imgsSelected )  // 4
+                uploadSalonImgs( this.salonID, this.imgsSelected )
             }
         },
         GetSalonImg: function () {

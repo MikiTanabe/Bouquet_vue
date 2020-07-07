@@ -27,6 +27,15 @@ export const uploadEventImgs = async ( id, imgList ) => {
   })
 }
 
+export const uploadProfileImgs = async ( id, imgList ) => {
+  imgList.forEach(async ( img )  => {
+    await storage.child(`profile/${id}/profile-img1.jpg`).put(img)
+  })
+  return storage.child(`profile/${id}/profile-img1.jpg`).getDownloadURL().then( url =>{
+    return url
+  })
+}
+
 export async function getSalonImgUrl ( id ) {
     return storage.child('salon-Image/' + id + '/salon-img1.jpg').getDownloadURL().then( url => {
                 return url
@@ -43,6 +52,19 @@ export async function getEventImgUrl ( id ) {
     return url
   }).catch( () => {
     return storage.child('events/event-no-image.jpg').getDownloadURL().then( noImgUrl => {
+      return noImgUrl
+    })
+  })
+}
+
+export async function getProfileImgUrl ( id ) {
+  console.log( 'GetstartProfImg: ', id )
+  return storage.child('profile/' + id + '/profile-img1.jpg').getDownloadURL().then( url => {
+    console.log('GetProfileURL: ', url)
+    return url
+  }).catch( () => {
+    return storage.child('profile/profile-no-image.jpg').getDownloadURL().then( noImgUrl => {
+      console.log('GetProfileURL Failed: ', noImgUrl)
       return noImgUrl
     })
   })

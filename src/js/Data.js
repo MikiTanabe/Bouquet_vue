@@ -51,7 +51,9 @@ export async function GetOneEventData( eventid ) {
         salonName: 'noSalonName',
         imgUrl: '',
         blnHaveEvent: false,
-        preJoin: ['']
+        join: [''],
+        preJoin: [''],
+        delete: ['']
     }
     if ( eventid == '' ){
         eventid = 'sample'
@@ -69,6 +71,7 @@ export async function GetOneEventData( eventid ) {
             mapEvent[ 'salonName' ] = doc.get( 'salonName' )
             mapEvent[ 'join' ] = doc.get( 'join' )
             mapEvent[ 'preJoin' ] = doc.get( 'preJoin' )
+            mapEvent[ 'delete' ] = doc.get( 'delete' )
             mapEvent[ 'uid' ] = doc.get( 'uid' )
             if (eventid == 'sample') {
                 mapEvent[ 'blnHaveEvent' ] = false
@@ -89,12 +92,12 @@ export async function GetOneEventData( eventid ) {
 }
 
 export async function GetConsultantName( uid ) {
-    let name = 'noName'
+    var name = 'noName'
     var docRef = db.collection( 'consultants' )
     var query = docRef.where( 'uid', '==', uid )
     return query.get().then( function( DocumentSnapshot ) {
             DocumentSnapshot.forEach( function( doc ) {
-                name = doc.get( 'name' )
+                name = doc.get( 'consulName' )
             })
         return name
     }).catch ( function( error ) {
@@ -104,7 +107,6 @@ export async function GetConsultantName( uid ) {
 }
 
 export async function GetSalonName( uid ) {
-    console.log('GetSalonName: ', uid)
     let name = 'noName'
     var docRef = db.collection( 'salons' )
     var query = docRef.where( 'userID', '==', uid )
@@ -137,7 +139,7 @@ export async function GetUserList ( txtSearch ) {
             DocumentSnapshot.forEach( doc =>{
                 var mapUser = {}
                 mapUser[ 'id' ] = doc.get( 'uid' )
-                mapUser[ 'name' ] = doc.get( 'name' )
+                mapUser[ 'name' ] = doc.get( 'consulName' )
                 mapUser[ 'salon' ] = doc.get( 'salonName' )
                 arrUsers.push(mapUser)
             })
@@ -148,26 +150,33 @@ export async function GetUserList ( txtSearch ) {
     return Promise.all(promises)
 }
 
-/* コンサルタントプロフィールの取得 */
+/* コンサルタントプロフィールの取得（ユーザIDから） */
 export async function GetConsultantProfile ( uid ) {
+
     let docRef = db.collection('consultants')
     let query = docRef.where("uid", "==", uid)
     
     return query.get().then( querySnapshot => {
         let mapConsultantProf = {
+            consultantID: 'noUser',
+            profileImgUrl: 'noImage',
             consulName: 'noName',
             certification: 'noCertification',
             birth: 'noBirthDay',
             introduction: 'noDescribe',
-            blnShowBirth: false
+            blnShowBirth: false,
+            blnHaveProfile: false
         }
         querySnapshot.forEach( doc => {
             if (doc.exists) {
-                mapConsultantProf[ 'consulName' ] = doc.get('name')
+                mapConsultantProf[ 'consultantID' ] = doc.id
+                mapConsultantProf[ 'profileImgUrl'] = doc.get('profileImgUrl')
+                mapConsultantProf[ 'consulName' ] = doc.get('consulName')
                 mapConsultantProf[ 'certification' ] = doc.get('certification')
                 mapConsultantProf[ 'birth' ] = FormatDate(doc.get('birth').toDate(), '-')
                 mapConsultantProf[ 'introduction' ] = doc.get('introduction')
                 mapConsultantProf[ 'blnShowBirth' ] = doc.get('showBirth')
+                mapConsultantProf[ 'blnHaveProfile' ] = true
             }
         })
         return mapConsultantProf
