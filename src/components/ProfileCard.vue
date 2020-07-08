@@ -1,11 +1,6 @@
 <template>
         <div class="flexProfileContainer">
-            <div class="profileChild col-md-3 col-xs-12">
-                <div class="profileImg">
-                    <img :src="imgUrl" class="img-fluid">
-                </div>
-            </div>
-            <div class="profileChild col-md-8 col-xs-12">
+            <div class="profileChild col-md-7 col-xs-12">
                 <h2 class="name">{{ name }}</h2>
                 <div class="introduction">
                     <section class="p-2">{{ introduction }}</section>
@@ -17,6 +12,11 @@
                         <p>資格: {{ certification }}</p>
                         <p>サロン: {{ salonName }}</p>
                     </div>
+                </div>
+            </div>
+            <div class="profileChild col-md-3 col-xs-12">
+                <div class="profileImg">
+                    <img :src="imgUrl" class="img-fluid">
                 </div>
             </div>
         </div>
@@ -84,7 +84,7 @@ export default {
 <style scoped>
     .flexProfileContainer {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: wrap-reverse;
     }
 
     .name {

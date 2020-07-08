@@ -2,7 +2,7 @@
     <div class="myPageContents">
         <h2>マイページトップ</h2>
         <div class="myPageContentchild">
-          <AlertBar :prpBlnLink="false" :prpStrMessage="strMessage" />
+          <AlertBar :prpBlnLink="blnLink" :prpStrMessage="strMessage" :prpStrRoute="strRoute"/>
         </div>
         <div class="myPageContentchild">
           <h4>参加予定のイベント</h4>
@@ -47,15 +47,29 @@
 
 <script>
 import AlertBar from '@/components/AlertBar'
+import { GetEventAlert } from '@/js/Alert'
+import { getUser } from '@/js/User'
+
 export default {
     name: 'MyPageTop',
     data () {
       return {
-        strMessage: '新しいメッセージがあります'
+        strMessage: 'お知らせはありません',
+        strRoute: '',
+        blnLink: false
       }
     },
     components: {
       AlertBar
+    },
+    created () {
+      GetEventAlert(getUser()).then( arrEvents => {
+        if ( arrEvents.length > 0 ) {
+          this.strMessage = 'イベントへの招待・招待取消承認依頼が' + arrEvents.length + '件あります'
+          this.blnLink = true
+          this.strRoute = 'myeventinfo'
+        }
+      })
     }
 }
 </script>

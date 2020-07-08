@@ -1,8 +1,8 @@
 <template>
-    <div>
-        <div class="col-10 borderPink">
-            <p v-if="!blnLink">{{ cmpStrMessage }}</p>
-            <router-link :to="strUrl" v-if="blnLink">{{ cmpStrMessage }}</router-link>
+    <div class="mb-2">
+        <div class="borderPink col-md-10 col-8">
+                <p v-if="!blnLink" class="p-0 m-0">{{ cmpStrMessage }}</p>
+                <router-link :to="strUrl" v-if="blnLink">{{ cmpStrMessage }}</router-link>
         </div>
     </div>
 </template>

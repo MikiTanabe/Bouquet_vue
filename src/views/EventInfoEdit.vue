@@ -3,6 +3,8 @@
         <AddParticipant :prpOpenWindow="openAddWindow" @form-closing="CloseAddWindow" @send-invite="GetInviteUsers" />
         <DelParticipant :prpOpenWindow="openDelWindow" :prpUserId="userSelected" :prpUserName="selectedName" :prpUserSalon="selectedSalon"
          @form-closing="CloseDelWindow" @user-delete="getDeleteUser" />
+        <ReAddParticipant :prpOpenWindow="openReAddWindow" :prpUserId="userSelected" :prpUserName="selectedName" :prpUserSalon="selectedSalon"
+         @form-closing="CloseReAddWindow" @user-reAdd="getReAddUser" />
         <h2>イベント情報の編集</h2>
         <div class="myPageContentchild">
             <form>
@@ -32,7 +34,7 @@
                 <h5>イベント参加者</h5>
                 <div class="col-12 mb-3">
                     <div class="form-group mb-1">
-                        <select class="col-10 mb-0" name="joinList" size="3" v-model="userSelected" @change="setBtndisabled">
+                        <select class="col-10 mb-0" name="joinList" size="3" v-model="userSelected" @change="ListParticipantSelected">
                             <option v-for="item in participants" v-bind:key="item.user" v-bind:value="item.user">
                                 {{ item.name }} / {{ item.salon }}
                                  <p v-if="item.status.preJoin">（招待中）</p>
@@ -41,8 +43,8 @@
                         </select>
                     </div>
                     <button v-on:click.prevent="OpenAddWindow" class="btn btn-sm btn-outline-primary mr-2">招待追加</button>
-                    <button v-on:click.prevent="OpenDelWindow" class="btn btn-sm btn-outline-danger mr-2" v-bind:disabled="btnDelDisabled">招待取消</button>
-                    <button v-on:click.prevent="OpenReAddWindow" class="btn btn-sm btn-outline-primary" v-if="showBtnReAdd">再招待</button>
+                    <button v-on:click.prevent="BtnDelAddClicked" class="btn btn-sm btn-outline-danger mr-2"
+                     v-bind:disabled="blnDisableBtn">{{ txtBtnDelAdd }}</button>
                 </div>
                 <h5>イベントURL(任意)</h5>
                 <div class="form-group col-12 mb-3">
@@ -61,6 +63,7 @@ import { GetOneEventData, GetConsultantName, GetSalonName } from '@/js/Data'
 import { getEventImgUrl, uploadEventImgs } from '@/js/Picture'
 import AddParticipant from '@/components/AddParticipant'
 import DelParticipant from '@/components/DelParticipant'
+import ReAddParticipant from '@/components/ReAddParticipant'
 import { db } from '@/firebase/firestore'
 import { BqDateParse } from '@/js/gblFunction'
 
@@ -86,18 +89,21 @@ export default {
             participants: [],
             openAddWindow: false,
             openDelWindow: false,
+            openReAddWindow: false,
             blnHaveEvent: false,
-            btnDelDisabled: true,
-            showBtnReAdd: false,
+            blnDisableBtn: true,
+            blnReAdd: false,
             imgsSelected: null,
             userSelected: '',
             selectedName: '',
-            selectedSalon: ''
+            selectedSalon: '',
+            txtBtnDelAdd: '招待取消'
         }
     },
     components: {
         AddParticipant,
-        DelParticipant
+        DelParticipant,
+        ReAddParticipant
     },
     props: {
         prpEventId: {
@@ -222,11 +228,18 @@ export default {
                 })
             })
         },
-        OpenDelWindow: function () {
-            this.openDelWindow = true
+        BtnDelAddClicked: function () {
+            if ( this.blnReAdd ) {
+                this.openReAddWindow = true
+            } else {
+                this.openDelWindow = true
+            }
         },
         CloseDelWindow: function () {
             this.openDelWindow = false
+        },
+        CloseReAddWindow: function () {
+            this.openReAddWindow = false
         },
         OpenAddWindow: function () {
             this.openAddWindow = true
@@ -244,50 +257,71 @@ export default {
             newUserList.forEach( user => {
                 for(var i = 0; i < lenJoinUser; i++ ){
                     if( this.eventData.join[i] == user ){
-                        alert('すでに参加中のユーザーです')
-                        break
-                    } else {
-                        for(var j = 0; i < lenPreUser; j++) {
-                            if( this.eventData.preJoin[j] == user ){
-                                alert('すでに参加・招待中のユーザーです')
-                                break
-                            } else {
-                                for(var k = 0; k < lenDelUser; k++ ){
-                                    alert('招待取消中のユーザーです。再度招待する場合は再招待を行ってください')
-                                    break
-                                }
-                                this.eventData.preJoin.push( user )
-                                console.log('preJoin-push: ', this.eventData.preJoin)
-                            }
-                        }
+                        alert('すでに招待済のユーザーです')
+                        return
                     }
                 }
+                for(var j = 0; i < lenPreUser; j++) {
+                    if( this.eventData.preJoin[j] == user ){
+                        alert('すでに招待中のユーザーです')
+                        return
+                    }
+                }
+                for(var k = 0; k < lenDelUser; k++ ){
+                    console.log('検証ID: ', this.eventData.delete[k])
+                    if( this.eventData.delete[k] == user ){
+                        alert('招待取消中のユーザーです。再度招待する場合は再招待を行ってください')
+                        return
+                    }
+                }
+                this.eventData.preJoin.push( user )
             })
             this.participants.splice(0)
             this.SetParticipantsList( this.eventData[ 'join' ], 'join' )
             this.SetParticipantsList( this.eventData[ 'preJoin' ], 'pre-join' )
             this.SetParticipantsList( this.eventData[ 'delete' ], 'delete' )
         },
-        setBtndisabled: function () {
+        ListParticipantSelected: function () {
             for ( var i = 0; i < this.participants.length; i++ ) {
                 if ( this.participants[i][ 'user' ] != this.userSelected ) {
                     continue
                 } else {
-                    this.btnDelDisabled = !this.participants[i][ 'status' ][ 'preJoin' ]
-                    this.showBtnReAdd = this.participants[i][ 'status' ][ 'delete' ]
-                    console.log('再招待 Disabled: ', this.showBtnReAdd )
+                    if ( this.participants[i][ 'status' ][ 'preJoin' ] ||
+                     this.participants[i][ 'status' ][ 'delete' ] ){
+                        this.blnDisableBtn = false
+                    } else {
+                        this.blnDisableBtn = true
+                    }
+                    this.blnReAdd = this.participants[i][ 'status' ][ 'delete' ]
                     this.selectedName = this.participants[i][ 'name' ]
                     this.selectedSalon = this.participants[i][ 'salon' ]
+                    if ( this.blnReAdd ) {
+                        this.txtBtnDelAdd = '再招待'
+                    } else {
+                        this.txtBtnDelAdd = '招待取消'
+                    }
                 }
             }
         },
         getDeleteUser: function ( uid ) {
             this.DeleteUserList( uid )
         },
+        getReAddUser: function ( uid ) {
+            this.ReAddUserList( uid )
+        },
         DeleteUserList: function ( delUser ) {
             let iDel = this.eventData[ 'preJoin' ].indexOf( delUser )
-            this.eventData[ 'preJoin' ].splice(iDel, 1)
+            this.eventData[ 'preJoin' ].splice( iDel, 1 )
             this.eventData[ 'delete' ].push( delUser )
+            this.participants.splice(0)
+            this.SetParticipantsList( this.eventData[ 'join' ], 'join' )
+            this.SetParticipantsList( this.eventData[ 'preJoin' ], 'pre-join' )
+            this.SetParticipantsList( this.eventData[ 'delete' ], 'delete' )
+        },
+        ReAddUserList: function ( reAddUser ) {
+            let iReAdd = this.eventData[ 'delete' ].indexOf( reAddUser )
+            this.eventData[ 'delete' ].splice( iReAdd, 1 )
+            this.eventData[ 'preJoin' ].push( reAddUser )
             this.participants.splice(0)
             this.SetParticipantsList( this.eventData[ 'join' ], 'join' )
             this.SetParticipantsList( this.eventData[ 'preJoin' ], 'pre-join' )
