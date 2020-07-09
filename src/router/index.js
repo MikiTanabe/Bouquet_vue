@@ -8,6 +8,7 @@ import Home  from '@/views/Home.vue'
 import MyEventInfo from '@/views/MyEventInfo'
 import EventInfoEdit from '@/views/EventInfoEdit'
 import ProfileSample from '@/views/ProfileSample'
+import OneEventInfo from '@/views/OneEventInfo'
 import MyPageTop from '@/components/MyPageTop'
 import Profile from '@/components/ProfilePanel'
 import SalonInfoPanel from '@/components/SalonInfoPanel'
@@ -65,7 +66,13 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
       {
         path: 'profilesample',
         component: ProfileSample
-      }
+      },
+      {
+        path: 'oneeventinfo',
+        name: 'OneEventInfo',
+        component: OneEventInfo,
+        props: true
+      },
     ]
   }
 ]

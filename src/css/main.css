@@ -51,6 +51,10 @@ h1 {
     color: salmon;
 }
 
+.clCrimson {
+    color: crimson;
+}
+
 .smallTxt {
     font-size: small;
 }

@@ -5,7 +5,9 @@
                 <tr><th>イベント名</th><th>状態</th></tr>
             </thead>
             <tbody>
-                <tr v-for="item in arrEventList" v-bind:key="item.id"><td>{{ item.title }}</td><td>{{ item.strStatus }}</td></tr>
+                <tr v-for="item in arrEventList" v-bind:key="item.id">
+                    <td><a href="javascript:void(0)" @click="EvTitleClick(item.id)">{{ item.title }}</a></td><td>{{ item.strStatus }}</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -19,6 +21,18 @@ export default {
     data () {
         return {
             arrEventList: []
+        }
+    },
+    methods: {
+        EvTitleClick: function ( evid ) {
+            console.log('EvTitleClick: ',evid)
+            var mapEventLink = {
+                name: 'OneEventInfo',
+                params: {
+                      prpEvId: evid
+                }
+            }
+            this.$router.push(mapEventLink).catch(() => {})
         }
     },
     created () {

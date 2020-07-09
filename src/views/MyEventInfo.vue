@@ -1,16 +1,18 @@
 <template>
     <div class="myPageContents">
-        <h2>イベント招待・招待取消の一覧</h2>
         <div class="myPageContentchild">
+            <h2>イベント招待・招待取消の一覧</h2>
             <!-- イベント承認待ち一覧 -->
             <ApproveEventList />
         </div>
-        <h2>主催イベント情報の管理</h2>
         <div class="myPageContentchild">
+            <h2>主催イベント情報の管理</h2>
             <!-- イベントリスト -->
             <EventListEditTb />
         </div>
-        <h2>参加予定イベントの管理</h2>
+        <div class="myPageContentchild">
+            <h2>参加予定イベントの管理</h2>
+        </div>
     </div>
 </template>
 <script>

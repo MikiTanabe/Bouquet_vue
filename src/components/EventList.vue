@@ -7,7 +7,7 @@
                 </div>
                 <div class="eventInfo ml-1">
                     <h6>{{ item.eventName }}</h6>
-                    <p>{{ item.introduction }}</p>
+                    <p class="introduction">{{ item.introduction }}</p>
                 </div>
             </div>
         </div>
@@ -62,5 +62,12 @@ export default {
     .eventInfo {
         display: flex;
         flex-flow: column;
+    }
+
+    .introduction {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
     }
 </style>

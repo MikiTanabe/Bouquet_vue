@@ -5,7 +5,7 @@
         <p>こんにちは、{{ name }}さん</p>
         <div id="flexWrapperContainer">
           <LeftBar />
-          <router-view/>
+          <router-view />
         </div>
       </div>
     </div>
@@ -54,7 +54,10 @@ export default {
   }
 
   #flexWrapperContainer {
-    display: flex;
-    align-items: flex-start;
+    /* display: flex;
+    align-items: flex-start; */
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 5fr;
   }
 </style>
