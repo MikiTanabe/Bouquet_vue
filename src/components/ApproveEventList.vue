@@ -6,7 +6,7 @@
             </thead>
             <tbody>
                 <tr v-for="item in arrEventList" v-bind:key="item.id">
-                    <td><a href="javascript:void(0)" @click="EvTitleClick(item.id)">{{ item.title }}</a></td><td>{{ item.strStatus }}</td>
+                    <td><a href="javascript:void(0)" @click="EvTitleClick(item.id, item.status)">{{ item.title }}</a></td><td>{{ item.strStatus }}</td>
                 </tr>
             </tbody>
         </table>
@@ -24,12 +24,13 @@ export default {
         }
     },
     methods: {
-        EvTitleClick: function ( evid ) {
+        EvTitleClick: function ( evid, evstatus ) {
             console.log('EvTitleClick: ',evid)
             var mapEventLink = {
-                name: 'OneEventInfo',
+                name: 'ApproveEvent',
                 params: {
-                      prpEvId: evid
+                      prpEvId: evid,
+                      prpEvStatus: evstatus
                 }
             }
             this.$router.push(mapEventLink).catch(() => {})

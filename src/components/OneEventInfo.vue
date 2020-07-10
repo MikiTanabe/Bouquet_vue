@@ -1,19 +1,14 @@
 <template>
-    <div class="myPageContents">
-        <div class="myPageContentchild">
-            <h2 class="bd1">イベント情報</h2>
-            <div class="col-md-10 offset-md-1">
-                <h3>{{ mapEventData.title }}</h3>
-                <div class="col-md-4 offset-md-4 col-xs-10 offset-xs-1">
-                    <img :src="mapEventData.imgUrl" class="img-fluid">
-                </div>
-                <p>主催者: {{ mapEventData.consulName }}</p>
-                <p>開催日: {{ mapEventData.date }}</p>
-                <p class="introduction clCrimson">{{ mapEventData.introduction }}</p>
-                <!-- TODO: viewに分離 -->
-                <!-- <p><button class="btn btn-primary col-xs-2 mr-2">参加承認</button>
-                <button class="btn btn-danger col-xs-2">参加辞退</button></p> -->
+    <div>
+        <h2 class="bd1">イベント情報</h2>
+        <div class="col-md-10 offset-md-1">
+            <h3>{{ mapEventData.title }}</h3>
+            <div class="col-md-4 offset-md-4 col-xs-10 offset-xs-1">
+                <img :src="mapEventData.imgUrl" class="img-fluid">
             </div>
+            <p>主催者: {{ mapEventData.consulName }}</p>
+            <p>開催日: {{ mapEventData.date }}</p>
+            <p class="introduction clCrimson">{{ mapEventData.introduction }}</p>
         </div>
     </div>
 </template>
@@ -39,6 +34,7 @@ export default {
         }
     },
     created () {
+        console.log(this.cmpEvId)
         GetOneEventData( this.cmpEvId ).then( mapEvent => {
             this.$set( this.mapEventData, 'title', mapEvent[ 'title' ] )
             this.$set( this.mapEventData, 'introduction', mapEvent[ 'introduction' ] )
@@ -70,14 +66,6 @@ export default {
         list-style: none;
         padding: 0px;
         margin: 5px;
-    }
-
-    .myPageContents {
-        margin-left: 20px;
-    }
-
-    .myPageContentchild {
-        padding-bottom: 15px;
     }
 
     .bd1 {

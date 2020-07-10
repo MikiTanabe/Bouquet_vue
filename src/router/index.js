@@ -8,7 +8,7 @@ import Home  from '@/views/Home.vue'
 import MyEventInfo from '@/views/MyEventInfo'
 import EventInfoEdit from '@/views/EventInfoEdit'
 import ProfileSample from '@/views/ProfileSample'
-import OneEventInfo from '@/views/OneEventInfo'
+import ApproveEvent from '@/views/ApproveEvent'
 import MyPageTop from '@/components/MyPageTop'
 import Profile from '@/components/ProfilePanel'
 import SalonInfoPanel from '@/components/SalonInfoPanel'
@@ -68,9 +68,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
         component: ProfileSample
       },
       {
-        path: 'oneeventinfo',
-        name: 'OneEventInfo',
-        component: OneEventInfo,
+        path: 'approveevent',
+        name: 'ApproveEvent',
+        component: ApproveEvent,
         props: true
       },
     ]
