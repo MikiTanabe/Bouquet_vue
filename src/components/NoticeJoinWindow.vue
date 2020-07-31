@@ -8,16 +8,12 @@
 </div>
 </template>
 <script>
-import { GetUserList } from '@/js/Data'
 
 export default {
     name: 'AddParticipant',
     data () {
         return {
-            txtSearch: 'ユーザ名、サロン名',
-            showList: false,
-            arrUserList: [],
-            arrSelected: []
+            rtnUid: ''
         }
     },
     props: {
@@ -35,21 +31,8 @@ export default {
         CloseWindow: function () {
             this.$emit('form-closing')
         },
-        btnSearchClick: function () {
-            this.arrUserList.splice(0)
-            GetUserList( this.txtSearch ).then( arrUser => {
-                arrUser.forEach( user => {
-                    Object.keys( user ).forEach( key =>{
-                        this.arrUserList.push(user[key])
-                    })
-                })
-                this.showList = true
-            }).catch( () => {
-                this.showList = false
-            })
-        },
         btnInviteClick: function () {
-            this.$emit('send-invite', this.arrSelected )
+            this.$emit('send-invite' )
             this.$emit('form-closing')
         }
     }

@@ -1,6 +1,6 @@
 <template>
     <div class="myPageContents">
-        <NoticeJoinWindow :prpOpenWindow="openWindow" @form-closing="CloseWindow" />
+        <NoticeJoinWindow :prpOpenWindow="openWindow" @form-closing="CloseWindow" @send-invite="GetInvite" />
         <div class="myPageContentchild">
             <h2>{{ strStatus }}</h2>
             <OneEventInfo :prpEvId="cmpEvId" />
@@ -13,6 +13,8 @@
 <script>
 import OneEventInfo from '@/components/OneEventInfo'
 import NoticeJoinWindow from '@/components/NoticeJoinWindow'
+import { GetOneEventData } from '@/js/Data'
+import { getUser } from '@/js/User'
 
 export default {
     name: 'ApproveEvent',
@@ -53,8 +55,21 @@ export default {
         CloseWindow: function () {
             this.openWindow = false
         },
-        btnApproveClisk: function () {
+        btnApproveClick: function () {
             this.openWindow = true
+        },
+        GetInvite: function () {
+            let uid = getUser()
+            GetOneEventData( this.cmpEvId ).then( mapEvent => {
+                console.log(mapEvent[ 'preJoin' ])
+                mapEvent[ 'preJoin' ].forEach( user => {
+                    if ( user == uid ) {
+                        console.log('承認ID: ', user)
+                        let mapSendEvent = mapEvent[ 'preJoin' ]
+                        //TODO: preJoinからuserIDを消し、joinにuserIDを追加してdb更新する
+                    }
+                })
+            })
         }
     },
     components: {
