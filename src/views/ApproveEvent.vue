@@ -65,7 +65,7 @@ export default {
                 mapEvent[ 'preJoin' ].forEach( user => {
                     if ( user == uid ) {
                         console.log('承認ID: ', user)
-                        let mapSendEvent = mapEvent[ 'preJoin' ]
+                        //let mapSendEvent = mapEvent[ 'preJoin' ]
                         //TODO: preJoinからuserIDを消し、joinにuserIDを追加してdb更新する
                     }
                 })
