@@ -15,6 +15,7 @@ import OneEventInfo from '@/components/OneEventInfo'
 import NoticeJoinWindow from '@/components/NoticeJoinWindow'
 import { GetOneEventData } from '@/js/Data'
 import { getUser } from '@/js/User'
+import { db } from '@/firebase/firestore'
 
 export default {
     name: 'ApproveEvent',
@@ -61,14 +62,27 @@ export default {
         GetInvite: function () {
             let uid = getUser()
             GetOneEventData( this.cmpEvId ).then( mapEvent => {
-                console.log(mapEvent[ 'preJoin' ])
-                mapEvent[ 'preJoin' ].forEach( user => {
-                    if ( user == uid ) {
-                        console.log('承認ID: ', user)
-                        //let mapSendEvent = mapEvent[ 'preJoin' ]
+                //console.log(mapEvent[ 'preJoin' ])
+                let arrPreJoin = mapEvent[ 'preJoin' ]
+                let arrJoin = mapEvent[ 'join' ]
+
+                for ( var i = 0; i < arrPreJoin.length; i++ ) {
+                    if ( arrPreJoin[i] == uid ) {
+                        console.log( '承認ID: ', arrPreJoin[i] )
                         //TODO: preJoinからuserIDを消し、joinにuserIDを追加してdb更新する
+                        console.log( 'Delete: ', arrJoin[i] )
+                        arrPreJoin.splice( i, 1 )
+                        arrJoin.push( uid )
                     }
-                })
+                }
+            })
+        },
+        UpDateEvData: function ( arrPreJoin, arrJoin ) {
+            console.log(arrJoin)
+            console.log(arrPreJoin)
+            let evRef = db.collection('events').doc( this.cmpEvId )
+            evRef.update({
+                arrPreJoin
             })
         }
     },
