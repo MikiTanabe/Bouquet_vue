@@ -73,6 +73,8 @@ export default {
                         console.log( 'Delete: ', arrJoin[i] )
                         arrPreJoin.splice( i, 1 )
                         arrJoin.push( uid )
+                        this.UpDateEvData( arrPreJoin, arrJoin )
+                        alert('参加承認しました')
                     }
                 }
             })
@@ -82,7 +84,8 @@ export default {
             console.log(arrPreJoin)
             let evRef = db.collection('events').doc( this.cmpEvId )
             evRef.update({
-                arrPreJoin
+                preJoin: arrPreJoin,
+                join: arrJoin
             })
         }
     },
