@@ -1,16 +1,16 @@
 <template>
 <div id="overlay" class="col-12" v-show="cmpOpenWindow">
     <div id="window">
-        <h5>イベントへの参加を承認しますか</h5>
+        <h5>イベントへの招待を辞退しますか</h5>
         <p><button v-on:click.prevent="CloseWindow" class="btn btn-outline-secondary mr-2">戻る</button>
-        <button v-on:click.prevent="btnInviteClick" class="btn btn-success">承認</button></p>
+        <button v-on:click.prevent="btnInviteClick" class="btn btn-success">辞退</button></p>
     </div>
 </div>
 </template>
 <script>
 
 export default {
-    name: 'NoticeJoinWindow',
+    name: 'NoticeDecWindow',
     data () {
         return {
             rtnUid: ''
@@ -32,7 +32,7 @@ export default {
             this.$emit('form-closing')
         },
         btnInviteClick: function () {
-            this.$emit('send-invite' )
+            this.$emit('send-Delete' )
             this.$emit('form-closing')
         }
     }

@@ -1,11 +1,14 @@
 <template>
     <div class="myPageContents">
-        <NoticeJoinWindow :prpOpenWindow="openWindow" @form-closing="CloseWindow" @send-invite="GetInvite" />
+        <NoticeJoinWindow :prpOpenWindow="openAddWindow" @form-closing="CloseApproveWindow" @send-invite="GetInvite" />
+        <NoticeDelWindow :prpOpenWindow="openDelWindow" @form-closing="CloseDelWindow" @send-Delete="GetDelete" />
+        <NoticeDecWindow :prpOpenWindow="openDecWindow" @form-closing="CloseDecWindow" @send-Delete="GetDecline" />
         <div class="myPageContentchild">
             <h2>{{ strStatus }}</h2>
             <OneEventInfo :prpEvId="cmpEvId" />
-            <p><button class="btn btn-primary col-xs-2 mr-2" v-on:click="btnApproveClick">参加承認</button>
-            <button class="btn btn-danger col-xs-2">参加辞退</button></p>
+            <p><button class="btn btn-primary col-xs-2 mr-2" v-if="blnApprove" v-on:click="btnApproveClick">参加承認</button>
+            <button class="btn btn-danger col-xs-2 mr-2" v-if="blnApprove" v-on:click="btnDeclineClick">招待辞退</button>
+            <button class="btn btn-primary col-xs-2" v-if="!blnApprove" v-on:click="btnDelClick">招待取消承認</button></p>
         </div>
     </div>
 </template>
@@ -13,6 +16,8 @@
 <script>
 import OneEventInfo from '@/components/OneEventInfo'
 import NoticeJoinWindow from '@/components/NoticeJoinWindow'
+import NoticeDelWindow from '@/components/NoticeDelWindow'
+import NoticeDecWindow from '@/components/NoticeDecWindow'
 import { GetOneEventData } from '@/js/Data'
 import { getUser } from '@/js/User'
 import { db } from '@/firebase/firestore'
@@ -22,7 +27,10 @@ export default {
     data () {
         return {
             strStatus: '',
-            openWindow: false
+            blnApprove: false,
+            openAddWindow: false,
+            openDelWindow: false,
+            openDecWindow: false
         }
     },
     props: {
@@ -43,55 +51,101 @@ export default {
             return this.prpEvStatus
         }
     },
-    watch: {
-        cmpEvStatus: function ( newVal ) {
-            if (newVal == 'preJoin') {
-                this.strStatus = '参加承認依頼'
-            } else {
-                this.strStatus = '招待取消承認依頼'
-            }
+    created () {
+        if ( this.cmpEvStatus == 'preJoin' ) {
+            this.strStatus = '参加承認依頼'
+            this.blnApprove = true
+        } else {
+            this.strStatus = '招待取消承認依頼'
+            this.blnApprove = false
         }
     },
     methods: {
-        CloseWindow: function () {
-            this.openWindow = false
+        CloseApproveWindow: function () {
+            this.openAddWindow = false
         },
         btnApproveClick: function () {
-            this.openWindow = true
+            this.openAddWindow = true
+        },
+        CloseDelWindow: function () {
+            this.openDelWindow = false
+        },
+        btnDelClick: function () {
+            this.openDelWindow = true
+        },
+        CloseDecWindow: function () {
+            this.openDecWindow = false
+        },
+        btnDeclineClick: function () {
+            this.openDecWindow = true
         },
         GetInvite: function () {
             let uid = getUser()
             GetOneEventData( this.cmpEvId ).then( mapEvent => {
-                //console.log(mapEvent[ 'preJoin' ])
                 let arrPreJoin = mapEvent[ 'preJoin' ]
                 let arrJoin = mapEvent[ 'join' ]
 
                 for ( var i = 0; i < arrPreJoin.length; i++ ) {
                     if ( arrPreJoin[i] == uid ) {
-                        console.log( '承認ID: ', arrPreJoin[i] )
-                        //TODO: preJoinからuserIDを消し、joinにuserIDを追加してdb更新する
-                        console.log( 'Delete: ', arrJoin[i] )
                         arrPreJoin.splice( i, 1 )
                         arrJoin.push( uid )
-                        this.UpDateEvData( arrPreJoin, arrJoin )
+                        this.UpdAddGuest( arrPreJoin, arrJoin )
                         alert('参加承認しました')
                     }
                 }
             })
         },
-        UpDateEvData: function ( arrPreJoin, arrJoin ) {
-            console.log(arrJoin)
-            console.log(arrPreJoin)
+        GetDelete: function () {
+            let uid = getUser()
+            GetOneEventData( this.cmpEvId ).then( mapEvent => {
+                let arrDelete = mapEvent[ 'delete' ]
+
+                for ( var i = 0; i < arrDelete.length; i++ ) {
+                    if ( arrDelete[i] == uid ) {
+                        arrDelete.splice( i, 1 )
+                        this.UpdDelGuest( arrDelete )
+                    }
+                }
+            })
+        },
+        GetDecline: function () {
+            let uid = getUser()
+            GetOneEventData( this.cmpEvId ).then( mapEvent => {
+                let arrDecline = mapEvent[ 'preJoin' ]
+
+                for ( var i = 0; i < arrDecline.length; i++ ) {
+                    if ( arrDecline[i] == uid ) {
+                        arrDecline.splice( i, 1 )
+                        this.UpdDecGuest( arrDecline )
+                    }
+                }
+            })
+        },
+        UpdAddGuest: function ( arrPreJoin, arrJoin ) {
             let evRef = db.collection('events').doc( this.cmpEvId )
             evRef.update({
                 preJoin: arrPreJoin,
                 join: arrJoin
             })
+        },
+        UpdDelGuest: function ( arrDelete ) {
+            let evRef = db.collection('events').doc( this.cmpEvId )
+            evRef.update({
+                delete: arrDelete
+            })
+        },
+        UpdDecGuest: function ( arrDecline ) {
+            let evRef = db.collection('events').doc( this.cmpEvId )
+            evRef.update({
+                preJoin: arrDecline
+            })
         }
     },
     components: {
         OneEventInfo,
-        NoticeJoinWindow
+        NoticeJoinWindow,
+        NoticeDelWindow,
+        NoticeDecWindow
     }
 }
 </script>
