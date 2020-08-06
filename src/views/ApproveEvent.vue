@@ -104,6 +104,7 @@ export default {
                     if ( arrDelete[i] == uid ) {
                         arrDelete.splice( i, 1 )
                         this.UpdDelGuest( arrDelete )
+                        alert('招待取消を承認しました')
                     }
                 }
             })
@@ -117,6 +118,7 @@ export default {
                     if ( arrDecline[i] == uid ) {
                         arrDecline.splice( i, 1 )
                         this.UpdDecGuest( arrDecline )
+                        alert('招待を辞退しました')
                     }
                 }
             })
