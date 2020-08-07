@@ -51,9 +51,9 @@ export async function GetOneEventData( eventid ) {
         salonName: 'noSalonName',
         imgUrl: '',
         blnHaveEvent: false,
-        join: [''],
-        preJoin: [''],
-        delete: ['']
+        join: [],
+        preJoin: [],
+        delete: []
     }
     if ( eventid == '' ){
         eventid = 'sample'
@@ -118,6 +118,38 @@ export async function GetSalonName( uid ) {
     }).catch ( function( error ) {
         console.log('noSuch a Document:', error )
         return name
+    })
+}
+
+export async function GetSalonData( uid ) {
+    /* サロンデータの取得 */
+    let mapSalon = {
+        salonId: '',
+        name: '',
+        subArea: '',
+        introduction: '',
+        areaId: -1,
+        prefId: -1,
+        features: {}
+    }
+    let docRef = db.collection( 'salons' )
+    let query = docRef.where( 'userID', '==', uid )
+    return query.get().then( function( DocumentSnapshot ) {
+        DocumentSnapshot.forWach( function( doc ) {
+            if ( doc.exists ) {
+                mapSalon[ 'salonId' ] = doc.id
+                mapSalon[ 'name' ] = doc.get('name')
+                mapSalon[ 'subArea' ] = doc.get('subArea')
+                mapSalon[ 'introduction' ] = doc.get('introduction')
+                mapSalon[ 'areaId' ] = doc.get('area')['id']
+                mapSalon[ 'prefId' ] = doc.get('prefecture')['id']
+                mapSalon[ 'features' ] = doc.get('features')
+            }
+        })
+        return mapSalon
+    }).catch ( function ( error ) {
+        console.log('noSuch a Docuent:', error )
+        return mapSalon
     })
 }
 

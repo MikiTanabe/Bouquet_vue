@@ -59,8 +59,9 @@
     </div>
 </template>
 <script>
-import { GetOneEventData, GetConsultantName, GetSalonName } from '@/js/Data'
+import { GetOneEventData, GetConsultantName, GetSalonName} from '@/js/Data'
 import { getEventImgUrl, uploadEventImgs } from '@/js/Picture'
+//import { getUser } from '@/js/User'
 import AddParticipant from '@/components/AddParticipant'
 import DelParticipant from '@/components/DelParticipant'
 import ReAddParticipant from '@/components/ReAddParticipant'
@@ -79,9 +80,9 @@ export default {
                 evdate: new Date(),
                 salonId: 'サロンID',
                 salonName: 'サロン名',
-                join: ['参加者'],
-                'pre-join': ['招待者'],
-                delete: ['招待取消者'],
+                join: [],
+                preJoin: [],
+                delete: [],
                 imgUrl: 'noImage',
                 txtUrl: 'イベントURL',
                 uid: 'ユーザID'
@@ -146,7 +147,7 @@ export default {
                         this.AddImg()
                         alert('イベント情報を更新しました')
                     } else {
-                        this.CreateSalon( mapEventData )
+                        this.CreateEvent( mapEventData )
                         this.AddImg()
                         alert('イベントを新規登録しました')
                     }
@@ -254,6 +255,7 @@ export default {
             let lenJoinUser = this.eventData.join.length
             let lenPreUser = this.eventData.preJoin.length
             let lenDelUser = this.eventData.delete.length
+
             newUserList.forEach( user => {
                 for(var i = 0; i < lenJoinUser; i++ ){
                     if( this.eventData.join[i] == user ){
@@ -268,7 +270,6 @@ export default {
                     }
                 }
                 for(var k = 0; k < lenDelUser; k++ ){
-                    console.log('検証ID: ', this.eventData.delete[k])
                     if( this.eventData.delete[k] == user ){
                         alert('招待取消中のユーザーです。再度招待する場合は再招待を行ってください')
                         return
@@ -334,8 +335,13 @@ export default {
             this.$set(this.eventData, 'title', mapEventData[ 'title' ])
             this.$set(this.eventData, 'introduction', mapEventData[ 'introduction' ])
             this.$set(this.eventData, 'consultantName', mapEventData[ 'consultantName' ])
-            this.$set(this.eventData, 'evdate', mapEventData[ 'date' ])
-            this.$set(this.eventData, 'salonId', mapEventData[ 'salonId' ])
+            this.$set(this.eventData, 'evdate', new Date)
+            if ( this.eventId == '' ) {
+                //TODO: 新規作成の際のサロンidを取得する
+                this.$set(this.eventData, 'salonId', '')
+            } else {
+                this.$set(this.eventData, 'salonId', mapEventData[ 'salonId' ])
+            }
             this.$set(this.eventData, 'salonName', mapEventData[ 'salonName' ])
             this.$set(this.eventData, 'join', mapEventData[ 'join' ])
             this.$set(this.eventData, 'preJoin', mapEventData[ 'preJoin' ])

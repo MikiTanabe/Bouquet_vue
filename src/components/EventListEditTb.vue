@@ -20,7 +20,6 @@
                 </tr>
             </tbody>
         </table>
-        <font-awesome-icon icon="plus-square" /> イベントの追加
     </div>
 </template>
 <script>

@@ -9,6 +9,7 @@
             <h2>主催イベント情報の管理</h2>
             <!-- イベントリスト -->
             <EventListEditTb />
+            <a href="javascript:void(0)" @click="AddEvClick"><font-awesome-icon icon="plus-square" /></a> イベントの追加
         </div>
         <div class="myPageContentchild">
             <h2>参加予定イベントの管理</h2>
@@ -24,6 +25,11 @@ export default {
     components: {
         EventListEditTb,
         ApproveEventList
+    },
+    methods: {
+        AddEvClick: function () {
+            this.$router.push({ name: 'EventEdit', prpEventId: '' }).catch(() => {})
+        }
     }
 }
 </script>
