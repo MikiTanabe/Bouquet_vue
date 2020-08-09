@@ -18,6 +18,7 @@ export const uploadSalonImgs = async ( id, imgList ) => {
 }
 
 export const uploadEventImgs = async ( id, imgList ) => {
+  console.log('イベント画像UP', id)
   imgList.forEach(async (img) => {
     await storage.child(`events/${id}/event-img1.jpg`).put(img)
   })

@@ -135,7 +135,7 @@ export async function GetSalonData( uid ) {
     let docRef = db.collection( 'salons' )
     let query = docRef.where( 'userID', '==', uid )
     return query.get().then( function( DocumentSnapshot ) {
-        DocumentSnapshot.forWach( function( doc ) {
+        DocumentSnapshot.forEach( function( doc ) {
             if ( doc.exists ) {
                 mapSalon[ 'salonId' ] = doc.id
                 mapSalon[ 'name' ] = doc.get('name')

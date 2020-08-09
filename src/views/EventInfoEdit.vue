@@ -59,14 +59,14 @@
     </div>
 </template>
 <script>
-import { GetOneEventData, GetConsultantName, GetSalonName} from '@/js/Data'
+import { GetOneEventData, GetConsultantName, GetSalonName, GetSalonData} from '@/js/Data'
 import { getEventImgUrl, uploadEventImgs } from '@/js/Picture'
-//import { getUser } from '@/js/User'
+import { getUser } from '@/js/User'
 import AddParticipant from '@/components/AddParticipant'
 import DelParticipant from '@/components/DelParticipant'
 import ReAddParticipant from '@/components/ReAddParticipant'
 import { db } from '@/firebase/firestore'
-import { BqDateParse } from '@/js/gblFunction'
+import { BqDateParse, FormatDate } from '@/js/gblFunction'
 
 export default {
     name: 'EventInfoEdit',
@@ -113,9 +113,15 @@ export default {
         }
     },
     computed: {
-        cpEventId: function () {
-            return this.prpEventId
-        },
+        cpEventId: {
+            get: function () {
+                return this.prpEventId
+            },
+            set: function ( val ) {
+                this.eventId = val
+                console.log('Setter: ', this.eventId )
+            }
+        }
     },
     watch: {
         cpEventId: function ( newVal ) {
@@ -129,6 +135,7 @@ export default {
         CreateEvent: function ( eventData ) {
             db.collection("events").add( eventData )
             .then(function(docRef) {
+                this.cpEventId = docRef.id
                 console.log("Document written with ID: ", docRef.id);
             })
             .catch(function(error) {
@@ -160,7 +167,8 @@ export default {
         },
         AddImg: function () {
             if (this.imgsSelected != null) {
-                uploadEventImgs( this.cpEventId, this.imgsSelected ).then( url => {
+                console.log(this.eventId)
+                uploadEventImgs( this.eventId, this.imgsSelected ).then( url => {
                     this.eventData.imgUrl = url
                 })
             }
@@ -201,6 +209,7 @@ export default {
                             })
                             break
                         case 'pre-join':
+                            console.log( '招待者追加', mapParticipant )
                             this.$set(mapParticipant, 'status', {
                                 preJoin: true,
                                 delete: false
@@ -255,7 +264,6 @@ export default {
             let lenJoinUser = this.eventData.join.length
             let lenPreUser = this.eventData.preJoin.length
             let lenDelUser = this.eventData.delete.length
-
             newUserList.forEach( user => {
                 for(var i = 0; i < lenJoinUser; i++ ){
                     if( this.eventData.join[i] == user ){
@@ -263,7 +271,7 @@ export default {
                         return
                     }
                 }
-                for(var j = 0; i < lenPreUser; j++) {
+                for(var j = 0; j < lenPreUser; j++) {
                     if( this.eventData.preJoin[j] == user ){
                         alert('すでに招待中のユーザーです')
                         return
@@ -331,24 +339,33 @@ export default {
     },
     created () {
         this.eventId = this.cpEventId
+        let uid = getUser()
         GetOneEventData( this.eventId ).then( mapEventData =>{
             this.$set(this.eventData, 'title', mapEventData[ 'title' ])
             this.$set(this.eventData, 'introduction', mapEventData[ 'introduction' ])
             this.$set(this.eventData, 'consultantName', mapEventData[ 'consultantName' ])
-            this.$set(this.eventData, 'evdate', new Date)
             if ( this.eventId == '' ) {
                 //TODO: 新規作成の際のサロンidを取得する
-                this.$set(this.eventData, 'salonId', '')
+                GetSalonData( uid ).then( mapSalon => {
+                    console.log(mapSalon[ 'salonId' ])
+                    this.$set(this.eventData, 'salonId', mapSalon[ 'salonId' ])
+                    this.$set(this.eventData, 'uid', uid)
+                    this.$set(this.eventData, 'salonName', mapSalon[ 'name' ])
+                    this.$set(this.eventData, 'evdate', FormatDate( new Date, '-' ))
+
+                })
             } else {
                 this.$set(this.eventData, 'salonId', mapEventData[ 'salonId' ])
+                this.$set(this.eventData, 'uid', mapEventData[ 'uid' ])
+                this.$set(this.eventData, 'salonName', mapEventData[ 'salonName' ])
+                this.$set(this.eventData, 'evdate', mapEventData[ 'date' ])
             }
-            this.$set(this.eventData, 'salonName', mapEventData[ 'salonName' ])
             this.$set(this.eventData, 'join', mapEventData[ 'join' ])
             this.$set(this.eventData, 'preJoin', mapEventData[ 'preJoin' ])
             this.$set(this.eventData, 'delete', mapEventData[ 'delete' ])
-            this.$set(this.eventData, 'uid', mapEventData[ 'uid' ])
+            
             this.blnHaveEvent = mapEventData[ 'blnHaveEvent' ]
-            getEventImgUrl( this.cpEventId ).then( ImgUrl => {
+            getEventImgUrl( this.eventId ).then( ImgUrl => {
                 this.$set(this.eventData, 'imgUrl', ImgUrl)
             })
             this.SetParticipantsList( this.eventData[ 'join' ], 'join' )

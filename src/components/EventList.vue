@@ -27,17 +27,19 @@ export default {
     methods: {
         GetEventList: function () {
             var docRef = db.collection( 'events' )
-            console.log('GetEventList')
             docRef.orderBy( 'upDate', 'desc' ).limit(6).get().then( DocumentSnapshot => {
                 DocumentSnapshot.forEach( doc => {
-                    var mapEvent = {}
-                    mapEvent[ 'id' ] = doc.id
-                    mapEvent[ 'eventName' ] = doc.get( 'title' )
-                    mapEvent[ 'introduction' ] = doc.get( 'introduction' )
-                    getEventImgUrl( doc.id ).then( ImgUrl => {
-                        mapEvent[ 'imgUrl' ] = ImgUrl
-                        this.arrEvents.push( mapEvent )
-                    })
+                    if( doc.id != 'sample' ) {
+                        var mapEvent = {}
+                        mapEvent[ 'id' ] = doc.id
+                        mapEvent[ 'eventName' ] = doc.get( 'title' )
+                        mapEvent[ 'introduction' ] = doc.get( 'introduction' )
+                        getEventImgUrl( doc.id ).then( ImgUrl => {
+                            mapEvent[ 'imgUrl' ] = ImgUrl
+                            this.arrEvents.push( mapEvent )
+                        })
+                    }
+                    
                 })
             })
         }
