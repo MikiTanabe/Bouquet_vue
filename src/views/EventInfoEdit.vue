@@ -113,14 +113,8 @@ export default {
         }
     },
     computed: {
-        cpEventId: {
-            get: function () {
+        cpEventId: function () {
                 return this.prpEventId
-            },
-            set: function ( val ) {
-                this.eventId = val
-                console.log('Setter: ', this.eventId )
-            }
         }
     },
     watch: {
@@ -133,10 +127,10 @@ export default {
             console.log('delete')
         },
         CreateEvent: function ( eventData ) {
-            db.collection("events").add( eventData )
+            return db.collection("events").add( eventData )
             .then(function(docRef) {
-                this.cpEventId = docRef.id
-                console.log("Document written with ID: ", docRef.id);
+                console.log("Document written with ID: ", docRef.id)
+                return docRef.id
             })
             .catch(function(error) {
                 console.error("Error adding document: ", error);
@@ -151,11 +145,13 @@ export default {
                     var mapEventData = this.SetMapEventInfo()
                     if ( this.blnHaveEvent ) {
                         this.ModifyEvent( this.eventId, mapEventData )
-                        this.AddImg()
+                        this.AddImg( this.eventId )
                         alert('イベント情報を更新しました')
                     } else {
-                        this.CreateEvent( mapEventData )
-                        this.AddImg()
+                        this.CreateEvent( mapEventData ).then( evId => {
+                            console.log( 'イベント作成後: ', evId )
+                            this.AddImg( evId )
+                        })
                         alert('イベントを新規登録しました')
                     }
             } catch ( e ) {
@@ -165,10 +161,9 @@ export default {
         SelectImg: function ( img ) {
             this.imgsSelected = img.target.files
         },
-        AddImg: function () {
+        AddImg: function ( evId ) {
             if (this.imgsSelected != null) {
-                console.log(this.eventId)
-                uploadEventImgs( this.eventId, this.imgsSelected ).then( url => {
+                uploadEventImgs( evId, this.imgsSelected ).then( url => {
                     this.eventData.imgUrl = url
                 })
             }
