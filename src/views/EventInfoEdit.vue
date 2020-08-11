@@ -5,6 +5,7 @@
          @form-closing="CloseDelWindow" @user-delete="getDeleteUser" />
         <ReAddParticipant :prpOpenWindow="openReAddWindow" :prpUserId="userSelected" :prpUserName="selectedName" :prpUserSalon="selectedSalon"
          @form-closing="CloseReAddWindow" @user-reAdd="getReAddUser" />
+        <NoticeEvDelete :prpOpenWindow="openNoticeDelete" :prpTxtEvName="eventData.title" @form-closing="CloseNoticeDelete" @delete-click="Delete" />
         <h2>イベント情報の編集</h2>
         <div class="myPageContentchild">
             <form>
@@ -52,10 +53,10 @@
                     <input type="text" v-model="eventData.txtUrl" class="col-10">
                 </div>
                 <button v-on:click.prevent="AddOrModify" class="btn btn-primary col-3 mr-2">保存</button>
-                <button v-on:click.prevent="Delete" class="btn btn-danger col-3">削除</button>
+                <button v-on:click.prevent="OpenNoticeDelete" v-bind:disabled="!blnHaveEvent" class="btn btn-danger col-3">削除</button>
             </form>
         </div>
-        <p>>>一覧へ戻る</p>
+        <p>>><router-link to="myeventinfo">一覧へ戻る</router-link></p>
     </div>
 </template>
 <script>
@@ -65,6 +66,7 @@ import { getUser } from '@/js/User'
 import AddParticipant from '@/components/AddParticipant'
 import DelParticipant from '@/components/DelParticipant'
 import ReAddParticipant from '@/components/ReAddParticipant'
+import NoticeEvDelete from '@/components/NoticeEvDelete'
 import { db } from '@/firebase/firestore'
 import { BqDateParse, FormatDate } from '@/js/gblFunction'
 
@@ -91,6 +93,7 @@ export default {
             openAddWindow: false,
             openDelWindow: false,
             openReAddWindow: false,
+            openNoticeDelete: false,
             blnHaveEvent: false,
             blnDisableBtn: true,
             blnReAdd: false,
@@ -104,7 +107,8 @@ export default {
     components: {
         AddParticipant,
         DelParticipant,
-        ReAddParticipant
+        ReAddParticipant,
+        NoticeEvDelete
     },
     props: {
         prpEventId: {
@@ -125,6 +129,12 @@ export default {
     methods: {
         Delete: function () {
             console.log('delete')
+            db.collection('events').doc(this.eventId).delete().then( () => {
+                alert('イベントを削除しました')
+                this.$router.push('myeventinfo')
+            }).catch( error => {
+                console.log('Catch Error: ', error )
+            })
         },
         CreateEvent: function ( eventData ) {
             return db.collection("events").add( eventData )
@@ -252,6 +262,12 @@ export default {
         CloseAddWindow: function () {
             this.openAddWindow = false
         },
+        CloseNoticeDelete: function () {
+            this.openNoticeDelete = false
+        },
+        OpenNoticeDelete: function () {
+            this.openNoticeDelete = true
+        },
         GetInviteUsers: function ( userList ) {
             this.AddUserList( userList ) 
         },
@@ -340,7 +356,6 @@ export default {
             this.$set(this.eventData, 'introduction', mapEventData[ 'introduction' ])
             this.$set(this.eventData, 'consultantName', mapEventData[ 'consultantName' ])
             if ( this.eventId == '' ) {
-                //TODO: 新規作成の際のサロンidを取得する
                 GetSalonData( uid ).then( mapSalon => {
                     console.log(mapSalon[ 'salonId' ])
                     this.$set(this.eventData, 'salonId', mapSalon[ 'salonId' ])
