@@ -152,18 +152,18 @@ export default {
         },
         AddOrModify: function ( ) {
             try {
-                    var mapEventData = this.SetMapEventInfo()
-                    if ( this.blnHaveEvent ) {
-                        this.ModifyEvent( this.eventId, mapEventData )
-                        this.AddImg( this.eventId )
-                        alert('イベント情報を更新しました')
-                    } else {
-                        this.CreateEvent( mapEventData ).then( evId => {
-                            console.log( 'イベント作成後: ', evId )
-                            this.AddImg( evId )
-                        })
-                        alert('イベントを新規登録しました')
-                    }
+                var mapEventData = this.SetMapEventInfo()
+                if ( this.blnHaveEvent ) {
+                    this.ModifyEvent( this.eventId, mapEventData )
+                    this.AddImg( this.eventId )
+                    alert('イベント情報を更新しました')
+                } else {
+                    this.CreateEvent( mapEventData ).then( evId => {
+                        console.log( 'イベント作成後: ', evId )
+                        this.AddImg( evId )
+                    })
+                    alert('イベントを新規登録しました')
+                }
             } catch ( e ) {
                 alert(e.message)
             }

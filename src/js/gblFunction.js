@@ -18,3 +18,11 @@ export function BqDateParse ( strDate ) {
     let date = strDate.substr( 8, 2 )
     return new Date( year, month, date)
 }
+
+export function GetMidnight ( date ) {
+    let year = date.getFullYear()
+    let month = date.getMonth()
+    let day = date.getDate()
+    let tmpDate = new Date(year, month, day, 0, 0, 0)
+    return tmpDate
+}

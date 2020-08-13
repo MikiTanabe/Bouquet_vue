@@ -15,7 +15,8 @@
 </template>
 <script>
 import { db } from '@/firebase/firestore'
-import { getEventImgUrl } from '@/js/Picture'
+//import { getEventImgUrl } from '@/js/Picture'
+import { GetMidnight } from '@/js/gblFunction'
 
 export default {
     name: 'EventList',
@@ -25,23 +26,75 @@ export default {
         }
     },
     methods: {
-        GetEventList: function () {
+        //TODO: データ取得完了後次の処理(非同期処理の制御を再調査)
+        GetEventList: async function () {
             var docRef = db.collection( 'events' )
-            docRef.orderBy( 'upDate', 'desc' ).limit(6).get().then( DocumentSnapshot => {
+            var arrEv = []
+            await docRef.where( 'date', '>=', GetMidnight( new Date() ) ).get().then( DocumentSnapshot => {
                 DocumentSnapshot.forEach( doc => {
                     if( doc.id != 'sample' ) {
+                        //TODO: 更新日順にソートアルゴリズム
                         var mapEvent = {}
                         mapEvent[ 'id' ] = doc.id
                         mapEvent[ 'eventName' ] = doc.get( 'title' )
                         mapEvent[ 'introduction' ] = doc.get( 'introduction' )
-                        getEventImgUrl( doc.id ).then( ImgUrl => {
+                        mapEvent[ 'upDate' ] = doc.get( 'upDate' )
+                        /* getEventImgUrl( doc.id ).then( ImgUrl => {
                             mapEvent[ 'imgUrl' ] = ImgUrl
-                            this.arrEvents.push( mapEvent )
-                        })
+                            arrEv.push( mapEvent )
+                            console.log('データ用意完了', arrEv )
+                        }) */
+                        mapEvent[ 'imgUrl' ] = doc.get( 'imgUrl' )
+                        arrEv.push( mapEvent )
                     }
-                    
                 })
             })
+            console.log('非同期終了', arrEv)
+            console.log( 'ソート開始', arrEv.length )
+            for ( let i = 0; i < arrEv.length; i++ ){
+                console.log('ソート中', arrEv[i])
+                for (let j = arrEv.length - 1; j > i; j-- ) {
+                    if( arrEv[j].upDate > arrEv[j - 1].upDate ){
+                        var t = arrEv[j]
+                        arrEv[j] = arrEv[j - 1]
+                        arrEv[j - 1] = t
+                    }
+                }
+            }
+            console.log( 'ソート完了', arrEv )
+            for ( let l = 0; l < 6; l++ ){
+                if ( arrEv.length <= l ) {
+                    console.log('インデックス', l)
+                    break
+                }
+                this.arrEvents.push( arrEv[l] )
+            }
+            console.log('イベントデータ', this.arrEvents)
+        },
+        SortEventData: function () {
+            console.log( 'ソート開始', this.arrEvents.length )
+            /* for ( let i = 0; i < this.arrEvents.length; i++ ){
+                console.log('ソート中', this.arrEvents[i])
+                for (let j = this.arrEvents.length - 1; j > i; j-- ) {
+                    if( this.arrEvents[j].upDate < this.arrEvents[j - 1].upDate ){
+                        var t = this.arrEvents[j]
+                        this.arrEvents[j] = this.arrEvents[j - 1]
+                        this.arrEvents[j - 1] = t
+                    }
+                }
+            }
+            console.log( 'ソート完了', this.arrEvents )
+            let arrEv = this.arrEvents
+            this.arrEvents.splice(1)
+            for ( let l = 0; l < 6; l++ ){
+                if ( arrEv.length < l ) {
+                    console.log('インデックス', l)
+                    break
+                }
+                this.arrEvents.push( arrEv )
+                console.log('データpush', this.arrEv[l])
+            }
+            console.log('イベントデータ', this.arrEvents) */
         }
     },
     created () {
