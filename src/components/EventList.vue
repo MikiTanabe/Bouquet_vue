@@ -49,10 +49,7 @@ export default {
                     }
                 })
             })
-            console.log('非同期終了', arrEv)
-            console.log( 'ソート開始', arrEv.length )
             for ( let i = 0; i < arrEv.length; i++ ){
-                console.log('ソート中', arrEv[i])
                 for (let j = arrEv.length - 1; j > i; j-- ) {
                     if( arrEv[j].upDate > arrEv[j - 1].upDate ){
                         var t = arrEv[j]
@@ -61,41 +58,13 @@ export default {
                     }
                 }
             }
-            console.log( 'ソート完了', arrEv )
             for ( let l = 0; l < 6; l++ ){
                 if ( arrEv.length <= l ) {
-                    console.log('インデックス', l)
                     break
                 }
                 this.arrEvents.push( arrEv[l] )
             }
-            console.log('イベントデータ', this.arrEvents)
         },
-        SortEventData: function () {
-            console.log( 'ソート開始', this.arrEvents.length )
-            /* for ( let i = 0; i < this.arrEvents.length; i++ ){
-                console.log('ソート中', this.arrEvents[i])
-                for (let j = this.arrEvents.length - 1; j > i; j-- ) {
-                    if( this.arrEvents[j].upDate < this.arrEvents[j - 1].upDate ){
-                        var t = this.arrEvents[j]
-                        this.arrEvents[j] = this.arrEvents[j - 1]
-                        this.arrEvents[j - 1] = t
-                    }
-                }
-            }
-            console.log( 'ソート完了', this.arrEvents )
-            let arrEv = this.arrEvents
-            this.arrEvents.splice(1)
-            for ( let l = 0; l < 6; l++ ){
-                if ( arrEv.length < l ) {
-                    console.log('インデックス', l)
-                    break
-                }
-                this.arrEvents.push( arrEv )
-                console.log('データpush', this.arrEv[l])
-            }
-            console.log('イベントデータ', this.arrEvents) */
-        }
     },
     created () {
         this.GetEventList()

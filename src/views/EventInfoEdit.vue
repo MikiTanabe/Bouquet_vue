@@ -148,7 +148,7 @@ export default {
         },
         ModifyEvent: function ( eventID, eventData ) {
             var eventRef = db.collection('events').doc(eventID)
-            eventRef.set( eventData )
+            eventRef.update( eventData )
         },
         AddOrModify: function ( ) {
             try {
@@ -175,6 +175,10 @@ export default {
             if (this.imgsSelected != null) {
                 uploadEventImgs( evId, this.imgsSelected ).then( url => {
                     this.eventData.imgUrl = url
+                    console.log('画像アップロード:URL', url)
+                    db.collection('events').doc( evId ).update({
+                        imgUrl: url
+                    })
                 })
             }
         },
@@ -362,8 +366,10 @@ export default {
                     this.$set(this.eventData, 'uid', uid)
                     this.$set(this.eventData, 'salonName', mapSalon[ 'name' ])
                     this.$set(this.eventData, 'evdate', FormatDate( new Date, '-' ))
-
                 })
+                .then( GetConsultantName( uid ).then( name => {
+                    this.$set(this.eventData, 'consultantName', name )
+                }))
             } else {
                 this.$set(this.eventData, 'salonId', mapEventData[ 'salonId' ])
                 this.$set(this.eventData, 'uid', mapEventData[ 'uid' ])

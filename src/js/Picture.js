@@ -29,7 +29,7 @@ export const uploadEventImgs = async ( id, imgList ) => {
 }
 
 export const uploadProfileImgs = async ( id, imgList ) => {
-  imgList.forEach(async ( img )  => {
+  await imgList.forEach(async ( img )  => {
     await storage.child(`profile/${id}/profile-img1.jpg`).put(img)
   })
   return storage.child(`profile/${id}/profile-img1.jpg`).getDownloadURL().then( url =>{
