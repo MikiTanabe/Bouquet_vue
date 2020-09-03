@@ -6,7 +6,7 @@
                     <img :src="item.imgUrl" class="img-fluid">
                 </div>
                 <div class="eventInfo ml-1">
-                    <h6>{{ item.eventName }}</h6>
+                    <a href="javascript:void(0)" @click="EventClick(item.id)">{{ item.eventName }}</a>
                     <p class="introduction">{{ item.introduction }}</p>
                 </div>
             </div>
@@ -65,6 +65,14 @@ export default {
                 this.arrEvents.push( arrEv[l] )
             }
         },
+        EventClick: function ( evid ) {
+            console.log('イベントクリック', evid)
+            //TODO: イベントIDをイベント情報ページに渡す
+            this.$router.push({
+                prpEvId: evid,
+                name: 'EventInfo'
+            }).catch(() => {})
+        }
     },
     created () {
         this.GetEventList()

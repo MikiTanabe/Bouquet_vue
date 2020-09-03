@@ -9,6 +9,7 @@ import MyEventInfo from '@/views/MyEventInfo'
 import EventInfoEdit from '@/views/EventInfoEdit'
 import ProfileSample from '@/views/ProfileSample'
 import ApproveEvent from '@/views/ApproveEvent'
+import EventInfo from '@/views/EventInfo'
 import MyPageTop from '@/components/MyPageTop'
 import Profile from '@/components/ProfilePanel'
 import SalonInfoPanel from '@/components/SalonInfoPanel'
@@ -34,6 +35,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
     path: '/signin',
     name: 'Signin',
     component: Signin
+  },
+  {
+    path: '/eventinfo',
+    name: 'EventInfo',
+    component: EventInfo,
+    props: true
   },
   {
     path: '/home',
