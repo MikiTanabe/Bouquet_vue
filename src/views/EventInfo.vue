@@ -1,11 +1,13 @@
 <template>
     <div>
-        <h1>イベント</h1>
-        <OneEventInfo :prpEvId="cmpEvId" />
+        <h1>{{ evid }}</h1>
+        <OneEventInfo v-bind:prp-ev-id="cmpId" />
+        <GuestList v-bind:prp-ev-id="cmpId" />
     </div>
 </template>
 <script>
 import OneEventInfo from '@/components/OneEventInfo'
+import GuestList from '@/components/GuestList'
 
 export default {
     name: 'Eventinfo',
@@ -15,21 +17,19 @@ export default {
         }
     },
     components: {
-        OneEventInfo
+        OneEventInfo,
+        GuestList
     },
     props: {
-        prpEvId: {
+        prpId: {
             type: String,
-            default: ''
+            default: 'sample'
         }
     },
     computed: {
-        cmpEvId () {
-            return this.prpEvId
+        cmpId () {
+            return this.prpId
         }
-    },
-    created () {
-        console.log('イベントページ', this.cmpEvId)
     }
 }
 </script>

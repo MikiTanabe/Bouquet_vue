@@ -67,11 +67,12 @@ export default {
         },
         EventClick: function ( evid ) {
             console.log('イベントクリック', evid)
-            //TODO: イベントIDをイベント情報ページに渡す
             this.$router.push({
-                prpEvId: evid,
+                params: {
+                    prpId: evid
+                },
                 name: 'EventInfo'
-            }).catch(() => {})
+            })
         }
     },
     created () {
