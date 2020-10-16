@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="flexPickUpsContainer">
-            <div v-for="item in arrSalons" v-bind:key="item.id" class="pickUpsChild col-12 col-sm-2 pr-3 mr-3 mb-2">
+            <div v-for="item in arrSalons" v-bind:key="item.id" class="pickUpsChild col-md-2 col-sm-12 pr-3 mr-3 mb-2">
                 <div>
                     <p class="smallTxt">{{ item.upDate }}</p>
                     <img :src="item.imgUrl" class="img-fluid">

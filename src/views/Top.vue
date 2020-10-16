@@ -17,25 +17,33 @@
             </div>
           </div>
         </div>
-          <div class="contents">
-            <div class="col-12">
-              <h1 class="clPink">サロンを検索</h1>
-            </div>
-            <Categories @doSearch="DoSearch"></Categories>
+        <!-- <div class="contents">
+          <div class="col-12">
+            <h1 class="clPink">サロンを検索</h1>
+          </div>
+          <Categories @doSearch="DoSearch"></Categories>
+        </div>-->
+        <div class="contents snspanel">
+          <div class="col-md-4 col-sm-12">
+            <h1 class="clPink">Youtube</h1>
+          </div>
+          <div class="col-md-4 col-sm-12">
+            <h1 class="clPink">Instagram</h1>
           </div>
         </div>
       </div>
+    </div>
 </template>
 
 <script>
-import Categories from '@/components/Categories.vue'
+// import Categories from '@/components/Categories.vue'
 import PickupSalon from '@/components/PickupSalon.vue'
 import EventList from '@/components/EventList.vue'
 
 export default {
   name: 'Top',
   components: {
-    Categories,
+    // Categories,
     PickupSalon,
     EventList
   },
@@ -53,5 +61,10 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+
+.snspanel {
+  display: flex;
+  flex-wrap: wrap;
+}
 </style>

@@ -121,8 +121,8 @@ export async function GetSalonName( uid ) {
     })
 }
 
+/* サロンデータの取得(ユーザIDから) */
 export async function GetSalonData( uid ) {
-    /* サロンデータの取得 */
     let mapSalon = {
         salonId: '',
         name: '',

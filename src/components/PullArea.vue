@@ -19,6 +19,7 @@
     </div>
 </template>
 <script>
+/* TODO: 地域選択時、都道府県のvalueを初期化 */
 import db from '@/firebase/firestore'
 
 export default {
@@ -52,6 +53,7 @@ export default {
     watch: {
         chNumArea: function ( newVal ) {
             this.areaID = newVal
+            this.prefectureID = -1
             this.GetListPref( String( this.areaID ) )
         },
         chNumPref: function ( newVal ) {
@@ -99,7 +101,6 @@ export default {
                 this.arrAreas.push(arrArea)
             })
         })
-        console.log('child local created ' +  String(this.areaID))
     }
 }
 </script>
